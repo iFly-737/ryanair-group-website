@@ -649,9 +649,6 @@ $('staffLoginBtn').onclick = async () => {
     alert('Staff sign-in failed: ' + error.message);
   }
 };
- if($('staffPin').value!=='2468'){alert('Incorrect PIN.');return}
- staff=true;$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');renderAdmin();populatePortalSelect();
-};
 $('addFlight').onclick=()=>{
  let f={id:Date.now(),no:$('newNo').value.trim().toUpperCase(),from:$('newFrom').value.trim(),to:$('newTo').value.trim(),date:$('newDate').value,dep:$('newDep').value,arr:$('newArr').value,gate:$('newGate').value.trim()||'TBC',aircraft:$('newAircraft').value.trim()||'TBC',rewardAmount:Math.max(0,Math.round(Number($('newReward').value)||0)),status:'Scheduled'};
  if(!f.no||!f.from||!f.to||!f.date){alert('Complete flight number, origin, destination and date.');return}
