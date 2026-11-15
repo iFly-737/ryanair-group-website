@@ -215,10 +215,21 @@ footer{text-align:center;padding:25px;color:#8993a3;font-size:11px}
 <section id="staffPage" class="hidden">
 <div class="hero"><h1>Staff operations</h1><p>Flight scheduling and passenger information.</p></div>
 <div class="panel" id="staffLogin">
-<h2>Staff sign in</h2>
-<div class="field"><label>Demo PIN</label><input id="staffPin" type="password"></div>
-<button class="primary" id="staffLoginBtn">Open control panel</button>
-<p class="muted">Prototype staff PIN: 2468. This is not secure and must not be used for a live website.</p>
+  <h2>Staff sign in</h2>
+
+  <div class="field">
+    <label>Email address</label>
+    <input id="staffEmail" type="email" autocomplete="username">
+  </div>
+
+  <div class="field">
+    <label>Password</label>
+    <input id="staffPassword" type="password" autocomplete="current-password">
+  </div>
+
+  <button class="primary" id="staffLoginBtn">Sign in</button>
+
+  <p class="muted">Only authorised staff accounts can access this panel.</p>
 </div>
 <div class="panel hidden" id="staffTools">
 <h2>Schedule a flight</h2>
