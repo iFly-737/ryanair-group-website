@@ -316,6 +316,25 @@ function updateBookingAccountStatus(){
 function recordTransaction(user,amount,reason,ref='',actor='System'){transactions.push({user,amount,reason,ref,actor,date:new Date().toISOString()});}
 function showPage(p){
  updateBookingAccountStatus();
+
+ ['book','manage','portal','status','staff'].forEach(x=>{
+  $(x+'Page').classList.toggle('hidden',x!==p);
+ });
+
+ document.querySelectorAll('nav button').forEach(b=>{
+  b.classList.toggle('active',b.dataset.page===p);
+ });
+
+ if(p==='book'){
+  resetBooking();
+ }
+
+ if(p==='staff'&&staff){
+  renderAdmin();
+  populatePortalSelect();
+ }
+}
+ updateBookingAccountStatus();
  ['book','manage','portal','status','staff'].forEach(x=>$(x+'Page').classList.toggle('hidden',x!==p));
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
  if(p==='book')renderFlights();
