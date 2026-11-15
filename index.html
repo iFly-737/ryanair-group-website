@@ -933,6 +933,31 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const $=id=>document.getElementById(id);
+  // LIGHT / DARK MODE
+const themeToggle = $('themeToggle');
+
+function applyTheme(theme) {
+  document.body.classList.toggle('dark-theme', theme === 'dark');
+
+  if (themeToggle) {
+    themeToggle.textContent =
+      theme === 'dark' ? '☀ Light mode' : '☾ Dark mode';
+  }
+}
+
+const savedTheme = localStorage.getItem('ryanairTheme') || 'light';
+applyTheme(savedTheme);
+
+if (themeToggle) {
+  themeToggle.onclick = () => {
+    const nextTheme = document.body.classList.contains('dark-theme')
+      ? 'light'
+      : 'dark';
+
+    localStorage.setItem('ryanairTheme', nextTheme);
+    applyTheme(nextTheme);
+  };
+}
 const seed=[
 {id:1,no:'FR101',from:'London Stansted',to:'Krakow',date:'2026-12-05',dep:'09:15',arr:'12:35',gate:'12',aircraft:'Boeing 737-800',status:'Scheduled'},
 {id:2,no:'FR204',from:'London Stansted',to:'Dublin',date:'2026-12-05',dep:'11:40',arr:'13:05',gate:'8',aircraft:'Boeing 737 MAX 8',status:'Scheduled'},
