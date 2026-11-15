@@ -609,7 +609,46 @@ $('statusBtn').onclick=()=>{
  let f=flights.find(x=>x.no.toUpperCase()===$('statusSearch').value.trim().toUpperCase());
  $('statusResult').innerHTML=f?`<div class="portal-card"><span class="tag">${esc(f.status)}</span><h2>${esc(f.no)} · ${esc(f.from)} → ${esc(f.to)}</h2><p>Date: ${esc(f.date)}</p><p>Departure: ${esc(f.dep)} UTC · Arrival: ${esc(f.arr)} UTC · Gate: ${esc(f.gate)}</p></div>`:'<div class="notice">Flight not found.</div>';
 };
-$('staffLoginBtn').onclick=()=>{
+$('staffLoginBtn').onclick = async () => {
+  const email = $('staffEmail').value.trim();
+  const password = $('staffPassword').value;
+
+  if (!email || !password) {
+    alert('Please enter your email and password.');
+    return;
+  }
+
+  try {
+    const result = await auth.signInWithEmailAndPassword(email, password);
+    const user = result.user;
+
+    const userDoc = await db.collection('users').doc(user.uid).get();
+
+    if (!userDoc.exists) {
+      await auth.signOut();
+      alert('No staff permissions found.');
+      return;
+    }
+
+    const role = userDoc.data().role;
+
+    if (role !== 'admin' && role !== 'staff') {
+      await auth.signOut();
+      alert('Access denied. This account is not authorised.');
+      return;
+    }
+
+    staff = true;
+    $('staffLogin').classList.add('hidden');
+    $('staffTools').classList.remove('hidden');
+    renderAdmin();
+    populatePortalSelect();
+
+  } catch (error) {
+    console.error(error);
+    alert('Staff sign-in failed: ' + error.message);
+  }
+};
  if($('staffPin').value!=='2468'){alert('Incorrect PIN.');return}
  staff=true;$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');renderAdmin();populatePortalSelect();
 };
