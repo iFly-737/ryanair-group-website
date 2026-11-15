@@ -270,7 +270,7 @@ footer{text-align:center;padding:25px;color:#8993a3;font-size:11px}
 </div>
 </section>
 </main>
-<footer>RYANAIR GROUP · Unofficial Roblox airline prototype · Not affiliated with Ryanair DAC · Passenger authentication and profiles use Firebase · bookings and demo transactions are browser-local</footer>
+<footer>RYANAIR GROUP · Unofficial Roblox airline prototype · Not affiliated with Ryanair DAC · Passenger authentication and profiles use Firebase · bookings are stored in Firestore; demo transactions and virtual currency are browser-local</footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -396,7 +396,7 @@ function renderReview(){
  let seatCost=seats.reduce((sum,s)=>{let r=+s.match(/\d+/)[0];return sum+(r===1||r===9?15:r>=2&&r<=5?10:0)},0);let total=farePrice()*pax.length+seatCost;
  $('review').innerHTML=`<div class="notice"><b>${esc(selectedFlight.no)}</b> · ${esc(selectedFlight.from)} → ${esc(selectedFlight.to)}<br>${selectedFlight.date} · ${selectedFlight.dep} UTC · Gate ${esc(selectedFlight.gate)}</div><p><b>Fare:</b> ${esc(fare)} — £${farePrice()} per passenger</p><p><b>Passengers:</b><br>${pax.map((p,i)=>`@${esc(p.roblox)} · Seat ${seats[i]||'Not selected'}`).join('<br>')}</p><p><b>Seat charges:</b> £${seatCost}</p><h2>Total: £${total}</h2><p><b>Virtual balance before payment:</b> £${userBalance()}</p><p class="muted">Your balance is only deducted after you accept the simulated payment.</p>`;
 }
-$('confirmBooking').onclick=()=>{
+$('confirmBooking').onclick=async()=>{
  if(!currentUser || !accounts[currentUser]){alert('Please sign in before paying. Your booking cannot be charged to a guest account.');showPage('manage');return;}
  const user=currentUser;
  const names=pax.map(p=>String(p.roblox||'').trim().toLowerCase());
@@ -411,10 +411,23 @@ $('confirmBooking').onclick=()=>{
  accounts[user].balance=balance-total;
  const ref='RG'+Math.random().toString(36).slice(2,8).toUpperCase();
  const passengerRefs=pax.map(()=> 'P'+Math.random().toString(36).slice(2,8).toUpperCase());
- bookings.push({ref,passengerRefs,flightId:selectedFlight.id,flightNo:selectedFlight.no,user,passengers:pax,seats,fare,amountPaid:total,refunded:false,rewardedPassengerIndexes:[]});
- recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,'Passenger');save();
- for(let i=1;i<=5;i++)$('bookingStep'+i).classList.add('hidden');$('bookingDone').classList.remove('hidden');
- $('bookingDone').innerHTML=`<div class="notice success"><h2>Booking confirmed</h2>Group reference: <b>${ref}</b><br>${passengerRefs.map((r,i)=>`Passenger ${i+1}: <b>${r}</b>`).join('<br>')}<br><br>Paid: £${total} virtual currency<br>Remaining balance: £${accounts[user].balance}</div><button class="primary" onclick="openPortal('${ref}')">View flight portal</button> <button class="secondary" onclick="showPage('manage')">My bookings</button>`;
+ const booking={ref,passengerRefs,flightId:selectedFlight.id,flightNo:selectedFlight.no,user,ownerUid:auth.currentUser.uid,passengers:pax,seats,fare,amountPaid:total,refunded:false,rewardedPassengerIndexes:[],cancelled:false};
+ bookings.push(booking);
+ recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,'Passenger');
+ $('confirmBooking').disabled=true;
+ try{
+  // Store the booking under its reference. Currency remains demo-only and is not securely charged in the cloud yet.
+  await db.collection('bookings').doc(ref).set({...booking,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  save();
+  for(let i=1;i<=5;i++)$('bookingStep'+i).classList.add('hidden');$('bookingDone').classList.remove('hidden');
+  $('bookingDone').innerHTML=`<div class="notice success"><h2>Booking confirmed</h2>Group reference: <b>${ref}</b><br>${passengerRefs.map((r,i)=>`Passenger ${i+1}: <b>${r}</b>`).join('<br>')}<br><br>Paid: £${total} virtual currency<br>Remaining balance: £${accounts[user].balance}<br><br>Booking saved to your online account.</div><button class="primary" onclick="openPortal('${ref}')">View flight portal</button> <button class="secondary" onclick="showPage('manage')">My bookings</button>`;
+ }catch(error){
+  bookings=bookings.filter(b=>b.ref!==ref);
+  accounts[user].balance=balance;
+  transactions=transactions.filter(t=>t.ref!==ref);
+  save();
+  alert('The booking could not be saved online, so it was not confirmed. Please try again. Details: '+(error.message||error));
+ }finally{$('confirmBooking').disabled=false;}
 };
 function resetBooking(){selectedFlight=null;pax=[];fare='';seats=[];$('bookingDone').classList.add('hidden');goStep(1);renderFlights()}
 async function loadPassengerProfile(user){
@@ -428,11 +441,17 @@ async function loadPassengerProfile(user){
  if(!username) throw new Error('Your profile is missing its Roblox username.');
  currentUser=username;
  if(!accounts[currentUser]) accounts[currentUser]={balance:100};
+ // Retrieve this passenger's active bookings from Firestore on every sign-in/session restore.
+ const cloudBookings=await db.collection('bookings').where('ownerUid','==',user.uid).get();
+ const remote=cloudBookings.docs.map(doc=>doc.data()).filter(b=>b.cancelled!==true);
+ const remoteRefs=new Set(remote.map(b=>b.ref));
+ bookings=bookings.filter(b=>b.ownerUid!==user.uid || remoteRefs.has(b.ref));
+ remote.forEach(b=>{const i=bookings.findIndex(x=>x.ref===b.ref);if(i>=0)bookings[i]=b;else bookings.push(b);});
  bookings.filter(b=>b.user==='guest').forEach(b=>b.user=currentUser);
  save();
  updateBookingAccountStatus();
  renderMyBookings();
- $('authStatus').textContent='Signed in as '+username+' ('+user.email+').';
+ $('authStatus').textContent='Signed in as '+username+' ('+user.email+'). Online bookings loaded.';
 }
 $('loginBtn').onclick=async()=>{
  const email=$('loginEmail').value.trim(),password=$('loginPass').value;
@@ -553,7 +572,7 @@ function airportCode(name){
   const known={'London Stansted':'STN','Krakow':'KRK','Dublin':'DUB','Milan Bergamo':'BGY'};
   return known[name]||String(name||'').split(/\s+/).map(w=>w[0]||'').join('').slice(0,3).toUpperCase()||'---';
 }
-function cancelBooking(ref){
+async function cancelBooking(ref){
  const booking=bookings.find(x=>x.ref===ref);if(!booking)return;
  const paid=Math.max(0,Number(booking.amountPaid)||0);
  const refund=Math.round(paid*0.4);
@@ -564,9 +583,16 @@ function cancelBooking(ref){
   accounts[booking.user].balance=(Number(accounts[booking.user].balance)||0)+refund;
   recordTransaction(booking.user,refund,`40% cancellation refund for ${booking.flightNo}`,ref,'System');
  }
- booking.refunded=true;
- bookings=bookings.filter(x=>x.ref!==ref);
- save();showPage('manage');renderMyBookings();alert(`Booking cancelled. £${refund} virtual currency refunded.`);
+ try{
+  await db.collection('bookings').doc(ref).update({cancelled:true,cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
+  booking.refunded=true;
+  bookings=bookings.filter(x=>x.ref!==ref);
+  save();showPage('manage');renderMyBookings();alert(`Booking cancelled and recorded online. £${refund} virtual currency refunded locally.`);
+ }catch(error){
+  if(refund>0){accounts[booking.user].balance=(Number(accounts[booking.user].balance)||0)-refund;transactions=transactions.filter(t=>!(t.ref===ref&&t.reason.includes('cancellation refund')));}
+  alert('The cancellation could not be recorded online. Your booking has not been cancelled. Details: '+(error.message||error));
+  save();
+ }
 }
 $('statusBtn').onclick=()=>{
  let f=flights.find(x=>x.no.toUpperCase()===$('statusSearch').value.trim().toUpperCase());
