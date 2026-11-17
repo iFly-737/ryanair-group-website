@@ -1,0 +1,1494 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ryanair Group | Booking & Flight Portal</title>
+<style>
+
+:root {
+  color-scheme: light;
+  --blue: #073b98;
+  --lightblue: #2563c7;
+  --yellow: #f5ca25;
+  --bg: #edf2f8;
+  --surface: rgba(255,255,255,.88);
+  --surface-solid: #ffffff;
+  --surface-soft: #f4f7fc;
+  --ink: #17243a;
+  --muted: #748197;
+  --line: #e0e7f0;
+  --green: #16834a;
+  --red: #bd2937;
+  --shadow: 0 12px 35px rgba(25,48,85,.07);
+  --glass: blur(18px);
+}
+
+body.dark-theme {
+  color-scheme: dark;
+  --blue: #75a9ff;
+  --lightblue: #4d8df5;
+  --yellow: #f5ca25;
+  --bg: #0b1220;
+  --surface: rgba(23,35,55,.88);
+  --surface-solid: #172337;
+  --surface-soft: #202f46;
+  --ink: #edf3fc;
+  --muted: #a0aec2;
+  --line: #30415b;
+  --green: #54cb88;
+  --red: #ff7782;
+  --shadow: 0 12px 35px rgba(0,0,0,.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 10% 0%, rgba(52,113,206,.09), transparent 35%),
+    var(--bg);
+  font-family: Inter, Arial, sans-serif;
+  color: var(--ink);
+  transition: background .25s ease, color .25s ease;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 15px 4%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 5px 25px rgba(20,40,75,.05);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+}
+
+.logo {
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -.8px;
+}
+
+.logo span {
+  color: var(--yellow);
+}
+
+nav {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+nav button {
+  background: transparent;
+  color: var(--ink);
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 13px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  transition: .2s ease;
+}
+
+nav button:hover {
+  background: var(--surface-soft);
+}
+
+nav button.active {
+  background: var(--blue);
+  color: white;
+}
+
+main {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 20px;
+  min-height: 65vh;
+}
+
+.hero {
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255,255,255,.18), transparent 35%),
+    linear-gradient(115deg,#062b70,#1556bb);
+  color: white;
+  padding: 36px;
+  border-radius: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 15px 35px rgba(7,59,152,.18);
+}
+
+.hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(25px,4vw,38px);
+  letter-spacing: -1px;
+}
+
+.hero p {
+  opacity: .85;
+  line-height: 1.6;
+}
+
+.panel {
+  background: var(--surface);
+  color: var(--ink);
+  padding: 27px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+  transition: background .25s ease, border-color .25s ease;
+}
+
+h2 {
+  color: var(--blue);
+  font-size: 22px;
+  letter-spacing: -.5px;
+}
+
+h3 {
+  margin-top: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 15px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.field label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface-solid);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--lightblue);
+  box-shadow: 0 0 0 3px rgba(37,99,199,.12);
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.primary {
+  background: linear-gradient(120deg,#073b98,#2164c6);
+  color: white;
+  border: 0;
+  border-radius: 11px;
+  padding: 13px 21px;
+  font-weight: 800;
+  box-shadow: 0 5px 14px rgba(7,59,152,.15);
+  transition: transform .2s, box-shadow .2s;
+}
+
+.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(7,59,152,.22);
+}
+
+.secondary {
+  background: var(--surface-solid);
+  color: var(--blue);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 11px 16px;
+  font-weight: 800;
+}
+
+.secondary:hover {
+  background: var(--surface-soft);
+}
+
+.danger {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.steps {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 22px;
+}
+
+.step {
+  flex: 1;
+  background: var(--surface-soft);
+  padding: 12px 5px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 800;
+  border-radius: 9px;
+}
+
+.step.on {
+  background: var(--blue);
+  color: white;
+}
+
+.step.done {
+  background: rgba(37,99,199,.13);
+  color: var(--blue);
+}
+
+.flight {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr auto;
+  gap: 15px;
+  align-items: center;
+  padding: 19px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--yellow);
+  border-radius: 15px;
+  margin: 13px 0;
+  cursor: pointer;
+  background: var(--surface-solid);
+  transition: .2s ease;
+}
+
+.flight:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.flight.selected {
+  outline: 2px solid var(--blue);
+  background: var(--surface-soft);
+}
+
+.flight strong {
+  font-size: 17px;
+}
+
+.flight small {
+  display: block;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.tag {
+  background: rgba(37,99,199,.12);
+  color: var(--blue);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.notice {
+  padding: 15px;
+  background: rgba(245,202,37,.12);
+  border: 1px solid rgba(245,202,37,.35);
+  border-left: 4px solid var(--yellow);
+  border-radius: 11px;
+  margin: 14px 0;
+}
+
+.success {
+  background: rgba(22,131,74,.10);
+  border-color: var(--green);
+}
+
+.fares {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 17px;
+}
+
+.fare {
+  border: 1px solid var(--line);
+  border-top: 5px solid #9ba8bb;
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  background: var(--surface-solid);
+  transition: .2s ease;
+}
+
+.fare:nth-child(2) {
+  border-top-color: var(--blue);
+}
+
+.fare:nth-child(3) {
+  border-top-color: var(--yellow);
+}
+
+.fare:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.fare.chosen {
+  outline: 2px solid var(--blue);
+}
+
+.price {
+  font-size: 27px;
+  font-weight: 900;
+  margin: 14px 0;
+}
+
+.fare button {
+  margin-top: auto;
+}
+
+.passenger-card {
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 18px;
+  margin: 13px 0;
+}
+
+.seat-map {
+  position: relative;
+  max-width: 430px;
+  margin: 22px auto;
+  padding: 20px 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.plane {
+  position: absolute;
+  inset: 2% 0;
+  width: 100%;
+  height: 96%;
+  opacity: .15;
+  pointer-events: none;
+}
+
+.cabin {
+  position: relative;
+  width: max-content;
+  margin: auto;
+  padding: 12px;
+  background: var(--surface-solid);
+  border-left: 2px solid var(--line);
+  border-right: 2px solid var(--line);
+  border-radius: 10px;
+}
+
+.seat-head,
+.seat-row {
+  display: grid;
+  grid-template-columns: 32px 32px 35px 32px 32px;
+  gap: 4px;
+  align-items: center;
+}
+
+.seat-head {
+  text-align: center;
+  font-weight: bold;
+  font-size: 10px;
+  margin-bottom: 7px;
+  color: var(--muted);
+}
+
+.seat-row {
+  margin: 5px 0;
+}
+
+.seat {
+  width: 30px;
+  height: 27px;
+  border: 1px solid #174a9b;
+  background: #2860bd;
+  border-radius: 7px 7px 3px 3px;
+  box-shadow: inset 0 -3px #123e91;
+  color: white;
+  font-size: 0;
+}
+
+.seat.paid10 {
+  background: #78a9ed;
+  border-color: #4b82cc;
+  box-shadow: inset 0 -3px #4778bd;
+  color: #102b50;
+}
+
+.seat.extra {
+  background: #073b98;
+  border-color: #032969;
+}
+
+.seat.selected {
+  background: #20a35a;
+  border-color: #168347;
+  box-shadow: inset 0 -3px #126b39;
+}
+
+.seat.taken {
+  background: #8793a5;
+  border-color: #8793a5;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.row-number {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 4px;
+  background: #2860bd;
+  margin-right: 4px;
+}
+
+.dot.extra { background: #073b98; }
+.dot.selected { background: #20a35a; }
+.dot.taken { background: #8793a5; }
+
+.portal-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 19px;
+  padding: 22px;
+  margin: 15px 0;
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--glass);
+  -webkit-backdrop-filter: var(--glass);
+}
+
+.portal-top {
+  background: var(--surface-soft);
+  padding: 12px;
+  border-radius: 15px;
+}
+
+.portal-strip {
+  background: #101b2d;
+  color: white;
+  border-radius: 14px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+}
+
+.portal-stat {
+  background: var(--surface-soft);
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  min-width: 0;
+}
+
+.portal-stat small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: .05em;
+}
+
+.portal-stat b {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.portal-route {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 23px 10px;
+  text-align: center;
+}
+
+.portal-route .airport {
+  flex: 1;
+  min-width: 0;
+}
+
+.portal-route .airport strong {
+  display: block;
+  font-size: 25px;
+  color: var(--blue);
+}
+
+.portal-route .airport small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.portal-route .route-line {
+  flex: 1;
+  color: var(--muted);
+  font-size: 12px;
+  border-top: 2px solid var(--line);
+  position: relative;
+  max-width: 90px;
+}
+
+.portal-section-title {
+  font-size: 15px;
+  color: var(--blue);
+  margin: 0 0 13px;
+}
+
+.cancel-booking {
+  margin-top: 12px;
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.portal-booking-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.staff-editor {
+  background: var(--surface-soft);
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  margin-top: 22px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 12px 9px;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  background: var(--surface-soft);
+  color: var(--blue);
+  font-weight: 800;
+}
+
+footer {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media(max-width:750px) {
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fares {
+    grid-template-columns: 1fr;
+  }
+
+  .flight {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .flight button {
+    grid-column: 1/-1;
+  }
+
+  .portal-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  main {
+    margin: 20px auto;
+    padding: 0 13px;
+  }
+
+  .panel {
+    padding: 19px;
+  }
+
+  .hero {
+    padding: 25px;
+  }
+}
+
+@media(max-width:450px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .seat-head,
+  .seat-row {
+    grid-template-columns: 27px 27px 29px 27px 27px;
+    gap: 3px;
+  }
+
+  .seat {
+    width: 26px;
+    height: 25px;
+  }
+
+  .portal-route .airport strong {
+    font-size: 19px;
+  }
+
+  nav {
+    width: 100%;
+  }
+
+  nav button {
+    padding: 9px;
+    font-size: 11px;
+  }
+}
+
+
+/* App-style booking and responsive flight cards */
+.flight-card {display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:20px;border:1px solid var(--line);border-radius:18px;margin:14px 0;background:var(--surface-solid);cursor:pointer;transition:.18s ease;box-shadow:0 5px 18px rgba(20,40,75,.035)}
+.flight-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.flight-card.selected{outline:2px solid var(--blue);background:var(--surface-soft)}
+.flight-card .airport strong{display:block;font-size:24px;letter-spacing:-.7px}
+.flight-card .airport small,.flight-card .flight-meta{display:block;color:var(--muted);font-size:12px;margin-top:5px}
+.flight-card .route-line{text-align:center;min-width:100px;color:var(--muted);font-size:12px}
+.flight-card .route-line:before{content:"";display:block;height:1px;background:var(--line);margin:8px 0}
+.flight-card .route-line b{color:var(--blue);font-size:12px}
+.flight-card .card-tail{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.flight-card .operator{font-size:11px;color:var(--muted)}
+.booking-shell{padding-bottom:100px}
+.booking-price-bar{position:fixed;z-index:150;left:0;right:0;bottom:0;padding:12px max(18px,calc((100vw - 1160px)/2));background:var(--surface);border-top:1px solid var(--line);backdrop-filter:blur(18px);display:flex;justify-content:space-between;align-items:center;gap:15px;box-shadow:0 -8px 30px rgba(10,25,50,.12)}
+.booking-price-bar>div{display:flex;flex-direction:column;gap:2px}.booking-price-bar small{font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--muted)}.booking-price-bar strong{font-size:25px}.booking-price-bar span{font-size:11px;color:var(--muted)}
+.booking-price-bar button{min-width:180px}
+.booking-price-bar .bar-back{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line)}
+.seat-map{max-width:620px;padding:20px 14px 24px;border-radius:30px;background:linear-gradient(180deg,var(--surface-soft),var(--surface-solid));}
+.cabin{width:100%;max-width:560px;padding:16px 18px 24px;border-radius:46px 46px 18px 18px;}
+.seat-head,.seat-row{grid-template-columns:repeat(3,minmax(0,1fr)) 24px repeat(3,minmax(0,1fr));gap:7px;}
+.seat-head{font-size:12px;margin-bottom:12px}.seat-row{margin:7px 0}.seat{width:100%;height:48px;min-width:0;border-radius:9px 9px 5px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;font-weight:900;line-height:1.1;border:1px solid rgba(0,0,0,.08);box-shadow:inset 0 -4px rgba(0,0,0,.10);padding:3px 1px}.seat .seat-cost{font-size:9px;font-weight:700;opacity:.9}.seat.extra{background:#123f91;color:#fff}.seat.paid10{background:#76bce9;color:#08336d}.seat.standard{background:#f4c928;color:#243044}.seat.selected{outline:3px solid #13a36b;outline-offset:1px;box-shadow:0 0 0 4px rgba(19,163,107,.13)}.seat.taken{background:#bfc4cc!important;color:white!important;opacity:.8}
+.row-number{text-align:center;font-size:12px;font-weight:800;color:var(--muted);align-self:center}
+.seat-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:12px 0}.seat-legend span{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}.seat-legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.message-notice{background:#c9273c!important;color:white!important;position:relative}.message-notice span{display:inline-flex;min-width:18px;height:18px;align-items:center;justify-content:center;background:white;color:#c9273c;border-radius:20px;margin-left:5px;padding:0 4px}.message-notice.has-unread{animation:messagePulse 1.5s infinite}@keyframes messagePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.8)}50%{box-shadow:0 0 0 5px rgba(255,255,255,.15)}}
+.conversation-list{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.conversation-list button{font-size:12px}.message-thread{max-height:360px;overflow:auto;padding:8px;border:1px solid var(--line);border-radius:14px;background:var(--surface-soft)}.message-bubble{max-width:85%;padding:11px 13px;border-radius:14px;margin:9px 0;background:var(--surface-solid);border:1px solid var(--line)}.message-bubble.mine{margin-left:auto;background:rgba(37,99,199,.12);border-color:rgba(37,99,199,.3)}.message-bubble small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.message-bubble p{white-space:pre-wrap;margin:0;overflow-wrap:anywhere}
+#passengerMessages{scroll-margin-top:90px}.unread-label{color:var(--red);font-weight:900}
+@media(max-width:760px){.flight-card{grid-template-columns:1fr auto 1fr;gap:9px;padding:15px}.flight-card .route-line{min-width:45px}.flight-card .airport strong{font-size:20px}.flight-card .card-tail{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}.booking-price-bar{padding:10px 12px}.booking-price-bar button{min-width:120px;padding:12px}.booking-price-bar strong{font-size:22px}.seat-map{padding:12px 5px}.cabin{padding:14px 7px 20px}.seat-head,.seat-row{gap:3px;grid-template-columns:repeat(3,minmax(0,1fr)) 17px repeat(3,minmax(0,1fr))}.seat{height:42px;font-size:10px}.seat .seat-cost{font-size:8px}.steps{overflow-x:auto}.step{min-width:105px;font-size:9px}.booking-shell{padding-bottom:120px}}
+@media(max-width:430px){.flight-card .airport strong{font-size:18px}.flight-card .route-line{font-size:10px}.booking-price-bar span{max-width:165px}.booking-price-bar button{min-width:105px;font-size:12px}.seat{height:37px}}
+
+
+/* Four-column, 17-row seat map styled to match the supplied airline reference */
+.booking-price-bar{justify-content:flex-start;min-height:88px;padding:12px max(18px,calc((100vw - 1160px)/2));background:#103f98;border-top:0;box-shadow:0 -8px 28px rgba(0,0,0,.18)}
+.booking-price-bar>div{width:100%;min-height:66px;padding:10px 22px;border-radius:12px;background:#fff;color:#252a32;display:grid;grid-template-columns:1fr;align-content:center;gap:1px}
+.booking-price-bar small{color:#8a929c;font-size:13px;letter-spacing:0;font-weight:500}
+.booking-price-bar strong{font-size:28px;color:#252a32}
+.booking-price-bar span{font-size:11px;color:#737d89}
+.booking-shell{padding-bottom:120px}
+.seat-map{max-width:560px;padding:0 16px 18px;border:0;border-radius:18px;background:#f4f4f4;overflow:visible}
+.cabin{width:100%;max-width:520px;padding:22px 16px 18px;border:0;border-radius:30px 30px 12px 12px;background:#f4f4f4}
+.seat-price-heading{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:15px 12px 13px;margin:0 -16px 12px;background:#fff;border-bottom:3px solid #d4d4d4;border-radius:12px 12px 0 0;color:#333}
+.seat-price-heading>div{display:flex;flex-direction:column;gap:5px;padding:0 12px}
+.seat-price-heading>div+div{border-left:1px solid #ddd;padding-left:24px}
+.seat-price-heading b{font-size:19px}
+.seat-price-heading span{display:flex;align-items:center;gap:8px;color:#888;font-size:14px}
+.seat-price-heading strong{font-size:18px;color:#333}
+.seat-swatch{display:inline-block;width:27px;height:27px;border-radius:4px;box-shadow:inset 0 -4px rgba(0,0,0,.12)}
+.extra-swatch{background:#123f91}.front-swatch{background:#f4c928}
+.seat-head,.seat-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 28px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:center}
+.seat-head{margin-bottom:14px;color:#222;font-size:15px;font-weight:500;text-align:center}
+.seat-row{margin:10px 0}
+.seat-row:nth-child(10){margin-top:28px}
+.seat{height:48px;width:100%;min-width:0;border:0;border-radius:8px 8px 4px 4px;box-shadow:inset 0 -5px rgba(0,0,0,.12);padding:0;display:block;position:relative}
+.seat.extra{background:#123f91;color:#fff}.seat.paid10{background:#f4c928;color:#243044}.seat.standard{background:#76bce9;color:#073b70}
+.seat.extra::before{content:"↗\A↙";white-space:pre;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:25px;font-weight:800;line-height:.88;color:#fff;pointer-events:none}
+.seat.extra.taken::before{display:none}
+.seat.selected{outline:3px solid #159b65;outline-offset:2px;box-shadow:0 0 0 4px rgba(21,155,101,.13),inset 0 -5px rgba(0,0,0,.12)}
+.seat.taken{background:#c9c9c9!important;color:#fff!important;opacity:1}
+.seat.taken:after{content:'×';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:40px;font-weight:300;line-height:1}
+.row-number{text-align:center;font-size:15px;font-weight:500;color:#222;align-self:center}
+.seat-legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:14px 0 0}
+.seat-legend span{font-size:11px;color:#555;display:flex;align-items:center;gap:6px}
+.seat-legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+@media(max-width:600px){.booking-price-bar{padding:8px 10px;min-height:76px}.booking-price-bar>div{min-height:58px;padding:8px 14px}.booking-price-bar strong{font-size:24px}.seat-map{padding:0 8px 14px}.cabin{padding:18px 7px 14px}.seat-price-heading{margin-left:-8px;margin-right:-8px;padding:12px 6px 10px;gap:5px}.seat-price-heading>div{padding:0 6px}.seat-price-heading>div+div{padding-left:12px}.seat-price-heading b{font-size:16px}.seat-price-heading span{font-size:12px;gap:5px}.seat-price-heading strong{font-size:15px}.seat-swatch{width:22px;height:22px}.seat-head,.seat-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 20px minmax(0,1fr) minmax(0,1fr);gap:5px}.seat{height:40px}.seat-row{margin:8px 0}.seat-row:nth-child(10){margin-top:24px}.seat.extra::before{font-size:21px}.row-number{font-size:13px}.seat-head{font-size:13px;margin-bottom:10px}.seat.taken:after{font-size:32px}}
+
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">✈ RYANAIR <span>GROUP</span></div>
+ <nav>
+  <button class="active" data-page="book">BOOK FLIGHTS</button>
+  <button data-page="manage">MY BOOKINGS</button>
+  <button data-page="myFlights">MY FLIGHTS</button>
+  <button data-page="portal">FLIGHT PORTAL</button>
+  <button type="button" id="messageNotice" class="message-notice hidden" onclick="openMessages()" aria-label="Open unread messages">MESSAGES <span id="messageUnreadCount">0</span></button>
+  <button data-page="status">FLIGHT STATUS</button>
+  <button data-page="staff">STAFF</button>
+  <button data-page="careers">CAREERS</button>
+ </nav>
+ <span id="utcClock" class="muted" style="font-weight:700;white-space:nowrap">UTC --:--:--</span>
+ <button type="button" class="secondary" id="themeToggle">☾ Dark mode</button>
+</header>
+<main>
+<section id="bookPage">
+<div class="hero"><h1>Book your flight</h1><p>Choose your route, fare and seats in a simple step-by-step booking experience.</p></div>
+<div class="panel booking-shell">
+<div id="bookingAccountStatus" class="notice">You are not signed in. Open <b>My Bookings</b> to sign in or create your passenger account before booking.</div>
+<div class="steps">
+<div class="step on" id="s1">1 · FLIGHT</div>
+<div class="step" id="s2">2 · FARE</div>
+<div class="step" id="s3">3 · PASSENGER DETAILS</div>
+<div class="step" id="s4">4 · SEATS</div>
+<div class="step" id="s5">5 · PAYMENT</div>
+</div>
+<div id="bookingStep1">
+<h2>Select your flight</h2>
+<div class="grid">
+<div class="field"><label>From</label><select id="filterFrom"><option value="">All airports</option></select></div>
+<div class="field"><label>To</label><select id="filterTo"><option value="">All destinations</option></select></div>
+<div class="field"><label>Date</label><input type="date" id="filterDate"></div>
+<div class="field"><label>Passengers</label><select id="paxCount"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></div>
+</div>
+<div id="flightList"></div>
+<div class="actions"><span class="muted">Select a flight.</span><button class="primary" id="toDetails" disabled>Continue</button></div>
+</div>
+<div id="bookingStep2" class="hidden">
+<h2>Choose your fare</h2>
+<div class="fares">
+<div class="fare" data-fare="Basic"><h3>Basic</h3><div class="price">£0</div><p class="muted">Small under-seat bag included.</p><button class="secondary" onclick="chooseFare('Basic')">Select Basic</button></div>
+<div class="fare" data-fare="Regular"><h3>Regular</h3><div class="price">£30</div><p class="muted">Small bag, priority boarding and 10kg overhead bag.</p><button class="primary" onclick="chooseFare('Regular')">Select Regular</button></div>
+<div class="fare" data-fare="Plus"><h3>Plus</h3><div class="price">£50</div><p class="muted">Small bag and 20kg checked bag.</p><button class="primary" onclick="chooseFare('Plus')">Select Plus</button></div>
+<div class="fare" data-fare="Flexi Plus"><h3>Flexi Plus</h3><div class="price">£80</div><p class="muted">Small bag, priority, 10kg overhead bag and fast-track security.</p><button class="primary" onclick="chooseFare('Flexi Plus')">Select Flexi Plus</button></div>
+</div>
+<div class="actions"><button class="secondary" onclick="goStep(1)">Back</button></div>
+</div>
+<div id="bookingStep3" class="hidden">
+<h2>Passenger details</h2>
+<div class="notice">Enter each passenger's Roblox username and Discord username. Staff may use these details to verify passengers and contact them about their booking.</div>
+<div id="passengerForms"></div>
+<button class="secondary" id="addPassenger">+ Add passenger</button>
+<div class="actions"><button class="secondary" onclick="goStep(2)">Back</button><button class="primary" id="toFare">Continue</button></div>
+</div>
+<div id="bookingStep4" class="hidden">
+<h2>Select your seats</h2>
+<div class="legend"><span><i class="dot extra"></i>Extra Space (£15)</span><span><i class="dot" style="background:#78a9ed"></i>Front (£10)</span><span><i class="dot"></i>Standard (free)</span><span><i class="dot selected"></i>Selected</span><span><i class="dot taken"></i>Unavailable</span></div>
+<p class="muted" id="seatInstruction"></p>
+<div id="seatGrid"></div><p id="selectedSeatSummary" class="notice">No seats selected.</p>
+<div class="actions"><button class="secondary" onclick="goStep(3)">Back</button><button class="primary" id="toConfirm">Continue</button></div>
+</div>
+<div id="bookingStep5" class="hidden">
+<h2>Review and pay</h2><div id="review"></div><div class="notice">This is a fictional virtual-currency checkout. No real payment is taken.</div>
+<div class="actions"><button class="secondary" onclick="goStep(4)">Back</button><button class="primary" id="confirmBooking">Accept simulated Apple Pay</button></div>
+</div>
+<div id="bookingDone" class="hidden"></div>
+<div id="bookingPriceBar" class="booking-price-bar hidden"><div><small>BOOKING TOTAL</small><strong id="bookingLiveTotal">£0.00</strong><span id="bookingLiveBreakdown">Select a flight to begin</span></div></div>
+</div>
+</section>
+
+<section id="managePage" class="hidden">
+<div class="hero"><h1>My bookings</h1><p>Sign in to view your reservations.</p></div>
+<div class="panel">
+<h2>Passenger account</h2>
+<div class="grid">
+<div class="field"><label>Email address</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+<div class="field"><label>Password</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="At least 6 characters"></div>
+</div>
+<div class="grid">
+<div class="field"><label>Roblox username (for new accounts)</label><input id="loginRoblox" autocomplete="off" placeholder="Your actual Roblox username"></div>
+<div class="field"><label>Discord username (for new accounts)</label><input id="loginDiscord" autocomplete="off" placeholder="Your Discord username"></div>
+</div>
+<div class="actions"><button class="primary" id="loginBtn">Sign in</button><button class="secondary" id="createAccountBtn">Create passenger account</button></div>
+<div class="notice">Email and password are handled by Firebase Authentication. Your Roblox and Discord usernames are stored in your private Firestore profile. Bookings and passenger-to-staff messages are stored in Firestore. Virtual-currency transactions remain browser-local demo data.</div>
+<div id="authStatus" class="muted" aria-live="polite"></div>
+<div id="myBookings"></div>
+<div class="portal-card" id="passengerMessages"><h2>Private messages</h2><div id="passengerMessageUnread" class="unread-label" aria-live="polite"></div><div id="passengerMessageList">Sign in to view messages.</div><div class="field"><label>Reply to staff</label><textarea id="passengerMessageReply" rows="3" maxlength="1000" placeholder="Write a private message to staff..."></textarea></div><button class="secondary" id="sendPassengerMessage">Send message to staff</button></div>
+</div>
+</section>
+
+<section id="myFlightsPage" class="hidden">
+<div class="hero"><h1>My flights</h1><p>Select a booking to open its individual flight portal.</p></div>
+<div class="panel"><div id="myFlightsList"><p class="muted">Sign in to view your booked flights.</p></div></div>
+</section>
+
+<section id="portalPage" class="hidden">
+<div class="hero"><h1>Flight Portal</h1><p>Flight information and onboard services.</p></div>
+<div class="panel" id="passengerPortal">Open a booking from My Bookings.</div>
+</section>
+
+<section id="statusPage" class="hidden">
+<div class="hero"><h1>Flight status</h1><p>Check operational information.</p></div>
+<div class="panel">
+<div class="field"><label>Flight number</label><input id="statusSearch" placeholder="FR101"></div>
+<button class="primary" id="statusBtn">Search</button>
+<div id="statusResult"></div><h2 style="margin-top:26px">Departure board</h2><div id="statusBoard"></div>
+</div>
+</section>
+
+<section id="careersPage" class="hidden"><div class="hero"><h1>Careers</h1><p>Explore opportunities with Ryanair Group.</p></div><div class="panel"><h2>Careers coming soon</h2><p class="muted">Information about virtual airline roles and applications will be published here.</p></div></section>
+
+<section id="staffPage" class="hidden">
+<div class="hero"><h1>Staff operations</h1><p>Flight scheduling and passenger information.</p></div>
+<div class="panel" id="staffLogin">
+  <h2>Staff sign in</h2>
+
+  <div class="field">
+    <label>Email address</label>
+    <input id="staffEmail" type="email" autocomplete="username">
+  </div>
+
+  <div class="field">
+    <label>Password</label>
+    <input id="staffPassword" type="password" autocomplete="current-password">
+  </div>
+
+  <button class="primary" id="staffLoginBtn">Sign in</button>
+
+  <p class="muted">Only authorised staff accounts can access this panel.</p>
+</div>
+<div class="panel hidden" id="staffTools">
+<h2>Schedule a flight</h2>
+<div class="grid">
+<div class="field"><label>Flight number</label><input id="newNo" placeholder="FR101"></div>
+<div class="field"><label>Origin</label><input id="newFrom"></div>
+<div class="field"><label>Destination</label><input id="newTo"></div>
+<div class="field"><label>Date</label><input id="newDate" type="date"></div>
+<div class="field"><label>Departure (UTC)</label><input id="newDep" type="time"></div>
+<div class="field"><label>Arrival (UTC)</label><input id="newArr" type="time"></div>
+<div class="field"><label>Gate</label><input id="newGate"></div>
+<div class="field"><label>Aircraft</label><input id="newAircraft" placeholder="Boeing 737-800"></div>
+<div class="field"><label>Operated by</label><select id="newOperator"><option>Ryanair</option><option>Buzz</option><option>Lauda Europe</option><option>Malta Air</option></select></div>
+<div class="field"><label>Staff attendance reward per passenger (£)</label><input id="newReward" type="number" min="0" step="1" value="0"><small class="muted">Set this when creating the flight. Staff can award it once after confirming attendance.</small></div>
+</div>
+<button class="primary" id="addFlight">Add flight</button>
+<h2 style="margin-top:28px">Scheduled flights</h2>
+<div id="adminFlightTable"></div>
+
+<div class="staff-editor">
+<h2>Passenger flight portal editor</h2>
+<p class="muted">Choose a flight and edit the information displayed to passengers.</p>
+<div class="grid">
+<div class="field"><label>Flight</label><select id="portalFlightSelect"></select></div>
+<div class="field"><label>Terminal</label><input id="portalTerminal"></div>
+<div class="field"><label>Check-in desks</label><input id="portalDesks"></div>
+<div class="field"><label>Boarding time (UTC)</label><input id="portalBoarding" type="time"></div>
+</div>
+<div class="field"><label>Passenger announcement</label><textarea id="portalAnnouncement" rows="2"></textarea></div>
+<div class="field"><label>Inflight menu</label><textarea id="portalMenu" rows="4" placeholder="Add food, drinks and onboard services..."></textarea></div>
+<div class="grid">
+<div class="field"><label>Magazine link</label><input id="portalMagazine" placeholder="https://..."></div>
+<div class="field"><label>Magazine visibility</label><select id="portalMagazineOn"><option value="false">Hidden</option><option value="true">Visible</option></select></div>
+</div>
+<button class="primary" id="savePortalInfo">Save passenger information</button>
+</div>
+<h2 style="margin-top:28px">Passenger attendance &amp; staff rewards</h2>
+<p class="muted">The reward amount is configured when the flight is created. Check the passenger's Roblox username in person at the gate, then confirm attendance once to add the reward to their virtual bank.</p>
+<div id="attendanceTable"></div>
+<h2 style="margin-top:28px">Passenger bookings</h2>
+<div id="adminBookingTable"></div>
+<div class="staff-editor" id="staffMessaging">
+<h2>Private passenger messaging</h2>
+<p class="muted">Messages are stored in Firestore and are visible to the passenger account and authorised staff. New replies update across devices.</p>
+<div class="field"><label>Passenger account</label><select id="messageRecipient"></select></div><div id="staffConversationList" class="conversation-list"></div>
+<div id="staffMessageHistory" class="portal-card">Select a passenger account to view the conversation.</div>
+<div class="field"><label>Private message</label><textarea id="staffMessageText" rows="3" maxlength="1000" placeholder="Write a private message..."></textarea></div>
+<button class="primary" id="sendStaffMessage">Send private message</button>
+</div>
+</div>
+</section>
+</main>
+<footer>RYANAIR GROUP · Unofficial Roblox airline prototype · Not affiliated with Ryanair DAC · Passenger authentication and profiles use Firebase · bookings are stored in Firestore; demo transactions and virtual currency are browser-local</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDIlR3mVRJdD_2DuqbLjST0Exm0UXIDWBU",
+  authDomain: "ryanair-6553e.firebaseapp.com",
+  projectId: "ryanair-6553e",
+  storageBucket: "ryanair-6553e.firebasestorage.app",
+  messagingSenderId: "494551037848",
+  appId: "1:494551037848:web:88be0fa645583588d49ded"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const $=id=>document.getElementById(id);
+function updateUTCClock(){const el=$('utcClock');if(el)el.textContent='UTC '+new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date());}
+updateUTCClock();setInterval(updateUTCClock,1000);
+  // LIGHT / DARK MODE
+const themeToggle = $('themeToggle');
+
+function applyTheme(theme) {
+  document.body.classList.toggle('dark-theme', theme === 'dark');
+
+  if (themeToggle) {
+    themeToggle.textContent =
+      theme === 'dark' ? '☀ Light mode' : '☾ Dark mode';
+  }
+}
+
+const savedTheme = localStorage.getItem('ryanairTheme') || 'light';
+applyTheme(savedTheme);
+
+if (themeToggle) {
+  themeToggle.onclick = () => {
+    const nextTheme = document.body.classList.contains('dark-theme')
+      ? 'light'
+      : 'dark';
+
+    localStorage.setItem('ryanairTheme', nextTheme);
+    applyTheme(nextTheme);
+  };
+}
+const seed=[
+{id:1,no:'FR101',from:'London Stansted',to:'Krakow',date:'2026-12-05',dep:'09:15',arr:'12:35',gate:'12',aircraft:'Boeing 737-800',status:'Scheduled'},
+{id:2,no:'FR204',from:'London Stansted',to:'Dublin',date:'2026-12-05',dep:'11:40',arr:'13:05',gate:'8',aircraft:'Boeing 737 MAX 8',status:'Scheduled'},
+{id:3,no:'FR318',from:'London Stansted',to:'Milan Bergamo',date:'2026-12-06',dep:'14:20',arr:'17:35',gate:'TBC',aircraft:'Boeing 737-800',status:'Scheduled'}
+];
+let flights=JSON.parse(localStorage.getItem('rg_flights')||'null')||seed;
+flights.forEach(f=>{if(!f.operator)f.operator='Ryanair'});
+let bookings=JSON.parse(localStorage.getItem('rg_bookings')||'[]');
+// Remove bookings whose scheduled flight no longer exists.
+bookings=bookings.filter(b=>flights.some(f=>f.id===b.flightId));
+let selectedFlight=null,pax=[],fare='',seats=[],currentUser='',staff=false;window.currentDiscordUsername='';
+let accounts=JSON.parse(localStorage.getItem('rg_accounts')||'{}');
+let transactions=JSON.parse(localStorage.getItem('rg_transactions')||'[]');
+Object.keys(accounts).forEach(k=>{if(accounts[k] && (accounts[k].balance===undefined||accounts[k].balance===null))accounts[k].balance=100;});
+
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function save(){localStorage.setItem('rg_flights',JSON.stringify(flights));localStorage.setItem('rg_bookings',JSON.stringify(bookings));localStorage.setItem('rg_accounts',JSON.stringify(accounts));localStorage.setItem('rg_transactions',JSON.stringify(transactions))}
+function farePrice(){return ({Basic:0,Regular:30,Plus:50,'Flexi Plus':80}[fare]||0)}
+function userBalance(){return currentUser && accounts[currentUser] ? (Number(accounts[currentUser].balance)||0) : 0}
+function updateBookingAccountStatus(){
+ const el=$('bookingAccountStatus'); if(!el)return;
+ el.innerHTML=currentUser
+  ? `<b>Signed in as ${esc(currentUser)}</b> · Virtual balance: <b>£${userBalance()}</b>`
+  : `You are not signed in. Open <b>My Bookings</b> to sign in or create your passenger account before booking.`;
+}
+function recordTransaction(user,amount,reason,ref='',actor='System'){transactions.push({user,amount,reason,ref,actor,date:new Date().toISOString()});}
+function showPage(p){
+ updateBookingAccountStatus();
+ ['book','manage','myFlights','portal','status','staff','careers'].forEach(x=>$(x+'Page').classList.toggle('hidden',x!==p));
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ if(p!=='manage')passengerThreadOpen=false;
+ if(p==='book')renderFlights();
+ if(p==='myFlights')renderMyFlights();
+ if(p==='status')renderStatusBoard();
+ if(p==='staff'&&staff){renderAdmin();populatePortalSelect()}
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+
+function populateFilters(){
+ let a=$('filterFrom').value,z=$('filterTo').value;
+ $('filterFrom').innerHTML='<option value="">All airports</option>'+[...new Set(flights.map(f=>f.from))].map(x=>`<option>${esc(x)}</option>`).join('');
+ $('filterTo').innerHTML='<option value="">All destinations</option>'+[...new Set(flights.map(f=>f.to))].map(x=>`<option>${esc(x)}</option>`).join('');
+ $('filterFrom').value=a;$('filterTo').value=z;
+}
+function renderFlights(){
+ populateFilters();
+ let list=flights.filter(f=>(!$('filterFrom').value||f.from===$('filterFrom').value)&&(!$('filterTo').value||f.to===$('filterTo').value)&&(!$('filterDate').value||f.date===$('filterDate').value)&&f.status!=='Cancelled');
+ $('flightList').innerHTML=list.length?list.map(f=>`<div class="flight-card ${selectedFlight?.id===f.id?'selected':''}" role="button" tabindex="0" onclick="selectFlight(${f.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectFlight(${f.id})}"><div class="airport"><small>${esc(f.from)}</small><strong>${esc(f.dep)}</strong><small>Departure · ${esc(f.date)}</small></div><div class="route-line"><b>${esc(f.no)}</b><br>→<br><span>${esc(f.aircraft||'Aircraft TBC')}</span></div><div class="airport"><small>${esc(f.to)}</small><strong>${esc(f.arr)}</strong><small>Arrival · UTC</small></div><div class="card-tail"><span class="tag">${esc(f.status)}</span><span class="operator">Operated by ${esc(f.operator||'Ryanair')} · Gate ${esc(f.gate||'TBC')}</span><button type="button" class="${selectedFlight?.id===f.id?'primary':'secondary'}" onclick="event.stopPropagation();selectFlight(${f.id})">${selectedFlight?.id===f.id?'Selected':'Select flight'}</button></div></div>`).join(''):'<div class="notice">No matching flights.</div>';
+ $('toDetails').disabled=!selectedFlight;
+}
+function selectFlight(id){selectedFlight=flights.find(f=>f.id===id);renderFlights();updateBookingPriceBar()}
+['filterFrom','filterTo','filterDate'].forEach(id=>$(id).onchange=renderFlights);
+$('toDetails').onclick=()=>{
+ if(!currentUser || !accounts[currentUser]){alert('Please sign in or create your passenger account in My Bookings before booking.');showPage('manage');return;}
+ if(!selectedFlight)return;
+ pax=Array.from({length:+$('paxCount').value},()=>({roblox:'',discord:''}));
+ goStep(2);
+};
+function renderPassengerForms(){
+ $('passengerForms').innerHTML=pax.map((p,i)=>`<div class="passenger-card"><div style="display:flex;justify-content:space-between"><h3>Passenger ${i+1}</h3>${pax.length>1?`<button class="secondary danger" onclick="removePassenger(${i})">Remove</button>`:''}</div><div class="grid"><div class="field"><label>Roblox username</label><input autocomplete="off" autocapitalize="none" spellcheck="false" data-p="${i}" data-k="roblox" value="${esc(p.roblox||'')}" placeholder="Roblox username"></div><div class="field"><label>Discord username</label><input autocomplete="off" autocapitalize="none" spellcheck="false" data-p="${i}" data-k="discord" value="${esc(p.discord||'')}" placeholder="Discord username"></div></div></div>`).join('');
+ document.querySelectorAll('[data-p]').forEach(el=>el.oninput=()=>pax[+el.dataset.p][el.dataset.k]=el.value);
+ $('addPassenger').disabled=pax.length>=9;
+}
+function removePassenger(i){pax.splice(i,1);renderPassengerForms()}
+$('addPassenger').onclick=()=>{if(pax.length<9){pax.push({roblox:'',discord:''});renderPassengerForms()}};
+$('toFare').onclick=()=>{
+ if(pax.some(p=>!p.roblox||!p.roblox.trim()||!p.discord||!p.discord.trim())){alert('Enter both a Roblox username and Discord username for every passenger.');return}
+ const usernames=pax.map(p=>p.roblox.trim().toLowerCase());
+ if(new Set(usernames).size!==usernames.length){alert('Each passenger must have a different Roblox username. Duplicate usernames are not allowed in one booking.');return}
+ const alreadyBooked=new Set(bookings.filter(b=>b.flightId===selectedFlight.id).flatMap(b=>(b.passengers||[]).map(p=>String(p.roblox||'').trim().toLowerCase())));
+ const duplicate=usernames.find(u=>alreadyBooked.has(u));
+ if(duplicate){alert(`@${duplicate} is already listed on a booking for this flight. Each Roblox username can only be booked once per flight.`);return}
+ goStep(4);
+};
+function goStep(n){
+ $('bookingDone').classList.add('hidden');
+ for(let i=1;i<=5;i++){
+  $('bookingStep'+i).classList.toggle('hidden',i!==n);
+  $('s'+i).className='step '+(i===n?'on':i<n?'done':'');
+ }
+ if(n===4)renderSeats();
+ if(n===5)renderReview();
+ updateBookingPriceBar();
+}
+function chooseFare(f){
+ fare=f;document.querySelectorAll('.fare').forEach(x=>x.classList.toggle('chosen',x.dataset.fare===f));
+ seats=[];renderPassengerForms();goStep(3);updateBookingPriceBar();
+}
+function seatCost(label){const row=Number(String(label).match(/\d+/)?.[0]||0);return row===1||row===9?15:row>=2&&row<=5?10:0}
+function bookingTotal(){const seatTotal=seats.reduce((sum,label)=>sum+seatCost(label),0);return farePrice()*pax.length+seatTotal}
+function updateBookingPriceBar(){const bar=$('bookingPriceBar');if(!bar)return;const stepVisible=[1,2,3,4,5].some(n=>!$('bookingStep'+n).classList.contains('hidden'));bar.classList.toggle('hidden',!stepVisible||!selectedFlight);$('bookingLiveTotal').textContent='£'+bookingTotal().toFixed(2);$('bookingLiveBreakdown').textContent=`${pax.length||1} passenger${(pax.length||1)===1?'':'s'} · ${fare||'Fare not selected'} · ${seats.length} of ${pax.length} seats selected`;}
+function renderSeats(){
+ let taken=bookings.filter(b=>b.flightId===selectedFlight.id).flatMap(b=>b.seats||[]);
+ $('seatInstruction').textContent=`Choose ${pax.length} seats. This aircraft has 4 seats per row and 17 rows. Extra Space: £15 · Front seats: £10 · Standard seats: free. Select a different seat to replace your last selection.`;
+ let rows=Array.from({length:17},(_,r)=>{let row=r+1;let buttons=['A','B','C','D'].map(c=>{let label=row+c,busy=taken.includes(label),sel=seats.includes(label),cost=seatCost(label),kind=cost===15?'extra':cost===10?'paid10':'standard';return `<button type="button" aria-label="Seat ${label}, ${cost?'£'+cost:'free'}${busy?', unavailable':''}" title="Seat ${label} · ${cost?'£'+cost:'Free'}" class="seat ${kind} ${busy?'taken':''} ${sel?'selected':''}" ${busy?'disabled':''} onclick="toggleSeat('${label}')"></button>`;});return `<div class="seat-row">${buttons[0]}${buttons[1]}<div class="row-number">${row}</div>${buttons[2]}${buttons[3]}</div>`;}).join('');
+ $('seatGrid').innerHTML=`<div class="seat-map"><div class="seat-price-heading"><div><b>Extra Space</b><span><i class="seat-swatch extra-swatch"></i>from <strong>£15.00</strong></span></div><div><b>Front</b><span><i class="seat-swatch front-swatch"></i>from <strong>£10.00</strong></span></div></div><div class="cabin"><div class="seat-head"><span>A</span><span>B</span><span></span><span>C</span><span>D</span></div>${rows}</div><div class="seat-legend"><span><i style="background:#76bce9"></i>Standard · Free</span><span><i style="background:#f4c928"></i>Front · £10</span><span><i style="background:#123f91"></i>Extra Space · £15</span><span><i style="background:#bfc4cc"></i>Unavailable</span><span><i style="background:#159b65"></i>Selected</span></div></div>`;
+ const seatTotal=seats.reduce((sum,label)=>sum+seatCost(label),0);
+ $('selectedSeatSummary').textContent=seats.length?`Selected: ${seats.map(label=>`${label} (£${seatCost(label).toFixed(2)})`).join(', ')} · Seat charges: £${seatTotal.toFixed(2)}`:'No seats selected.';
+ $('toConfirm').disabled=seats.length!==pax.length;updateBookingPriceBar();
+}
+function toggleSeat(s){if(seats.includes(s))seats=seats.filter(x=>x!==s);else if(seats.length<pax.length)seats.push(s);else if(pax.length>0)seats[seats.length-1]=s;renderSeats();}
+$('toConfirm').onclick=()=>goStep(5);
+function renderReview(){
+ let seatTotal=seats.reduce((sum,label)=>sum+seatCost(label),0);let total=farePrice()*pax.length+seatTotal;
+ $('review').innerHTML=`<div class="notice"><b>${esc(selectedFlight.no)}</b> · ${esc(selectedFlight.from)} → ${esc(selectedFlight.to)}<br>${selectedFlight.date} · ${selectedFlight.dep} UTC · Gate ${esc(selectedFlight.gate)}</div><p><b>Fare:</b> ${esc(fare)} — £${farePrice()} per passenger</p><p><b>Passengers:</b><br>${pax.map((p,i)=>`@${esc(p.roblox)} · Discord: ${esc(p.discord)} · Seat ${seats[i]||'Not selected'}`).join('<br>')}</p><p><b>Seat charges:</b> £${seatTotal}</p><h2>Total: £${total}</h2><p><b>Virtual balance before payment:</b> £${userBalance()}</p><p class="muted">Your balance is only deducted after you accept the simulated payment.</p>`;
+}
+$('confirmBooking').onclick=async()=>{
+ if(!currentUser || !accounts[currentUser]){alert('Please sign in before paying. Your booking cannot be charged to a guest account.');showPage('manage');return;}
+ const user=currentUser;
+ const names=pax.map(p=>String(p.roblox||'').trim().toLowerCase());
+ if(names.some(n=>!n)||new Set(names).size!==names.length){alert('Passenger Roblox usernames must be present and unique.');goStep(3);return;}
+ const existingNames=new Set(bookings.filter(b=>b.flightId===selectedFlight.id).flatMap(b=>(b.passengers||[]).map(p=>String(p.roblox||'').trim().toLowerCase())));
+ if(names.some(n=>existingNames.has(n))){alert('One or more Roblox usernames are already booked on this flight. Please check the passenger details.');goStep(3);return;}
+ const seatCost=seats.reduce((sum,s)=>{let r=+s.match(/\d+/)[0];return sum+(r===1||r===9?15:r>=2&&r<=5?10:0)},0);
+ const total=farePrice()*pax.length+seatCost;
+ const balance=Number(accounts[user].balance)||0;
+ if(balance<total){alert(`Insufficient virtual balance. You need £${total}, but have £${balance}.`);return;}
+ if(!confirm(`Accept simulated Apple Pay?\n\nTotal: £${total} virtual currency\nBalance after payment: £${balance-total}\n\nNo real money will be taken.`))return;
+ accounts[user].balance=balance-total;
+ const ref='RG'+Math.random().toString(36).slice(2,8).toUpperCase();
+ const passengerRefs=pax.map(()=> 'P'+Math.random().toString(36).slice(2,8).toUpperCase());
+ const booking={ref,passengerRefs,flightId:selectedFlight.id,flightNo:selectedFlight.no,user,ownerUid:auth.currentUser.uid,passengers:pax,seats,fare,amountPaid:total,refunded:false,rewardedPassengerIndexes:[],cancelled:false};
+ bookings.push(booking);
+ recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,'Passenger');
+ $('confirmBooking').disabled=true;
+ try{
+  // Store the booking under its reference. Currency remains demo-only and is not securely charged in the cloud yet.
+  await db.collection('bookings').doc(ref).set({...booking,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  save();
+  for(let i=1;i<=5;i++)$('bookingStep'+i).classList.add('hidden');$('bookingDone').classList.remove('hidden');$('bookingPriceBar').classList.add('hidden');
+  $('bookingDone').innerHTML=`<div class="notice success"><h2>Booking confirmed</h2>Group reference: <b>${ref}</b><br>${passengerRefs.map((r,i)=>`Passenger ${i+1}: <b>${r}</b>`).join('<br>')}<br><br>Paid: £${total} virtual currency<br>Remaining balance: £${accounts[user].balance}<br><br>Booking saved to your online account.</div><button class="primary" onclick="showPage('myFlights');renderMyFlights()">View my booked flights</button> <button class="secondary" onclick="resetBooking();showPage('book')">Return to available flights</button>`;
+ }catch(error){
+  bookings=bookings.filter(b=>b.ref!==ref);
+  accounts[user].balance=balance;
+  transactions=transactions.filter(t=>t.ref!==ref);
+  save();
+  alert('The booking could not be saved online, so it was not confirmed. Please try again. Details: '+(error.message||error));
+ }finally{$('confirmBooking').disabled=false;}
+};
+function resetBooking(){selectedFlight=null;pax=[];fare='';seats=[];$('bookingDone').classList.add('hidden');$('bookingPriceBar').classList.add('hidden');goStep(1);renderFlights()}
+async function loadPassengerProfile(user){
+ const snap=await db.collection('users').doc(user.uid).get();
+ if(!snap.exists){
+  await auth.signOut();
+  throw new Error('Your passenger profile was not found. Please create an account again or contact the site administrator.');
+ }
+ const profile=snap.data();
+ const username=String(profile.robloxUsername||'').trim();window.currentDiscordUsername=String(profile.discordUsername||'').trim();
+ if(!username) throw new Error('Your profile is missing its Roblox username.');
+ currentUser=username;
+ if(!accounts[currentUser]) accounts[currentUser]={balance:100};
+ // Retrieve this passenger's active bookings from Firestore on every sign-in/session restore.
+ const cloudBookings=await db.collection('bookings').where('ownerUid','==',user.uid).get();
+ const remote=cloudBookings.docs.map(doc=>doc.data()).filter(b=>b.cancelled!==true);
+ const remoteRefs=new Set(remote.map(b=>b.ref));
+ bookings=bookings.filter(b=>b.ownerUid!==user.uid || remoteRefs.has(b.ref));
+ remote.forEach(b=>{const i=bookings.findIndex(x=>x.ref===b.ref);if(i>=0)bookings[i]=b;else bookings.push(b);});
+ bookings.filter(b=>b.user==='guest').forEach(b=>b.user=currentUser);
+ save();
+ updateBookingAccountStatus();
+ renderMyBookings();
+ $('authStatus').textContent='Signed in as '+username+' ('+user.email+'). Online bookings loaded.';renderPassengerMessages();
+}
+$('loginBtn').onclick=async()=>{
+ const email=$('loginEmail').value.trim(),password=$('loginPass').value;
+ if(!email||!password){alert('Enter your email address and password.');return;}
+ $('authStatus').textContent='Signing in...';
+ try{const credential=await auth.signInWithEmailAndPassword(email,password);await loadPassengerProfile(credential.user);}
+ catch(error){$('authStatus').textContent='';alert(error.message||'Unable to sign in.');}
+};
+$('createAccountBtn').onclick=async()=>{
+ const email=$('loginEmail').value.trim(),password=$('loginPass').value;
+ const robloxUsername=$('loginRoblox').value.trim(),discordUsername=$('loginDiscord').value.trim();
+ if(!email||!password||!robloxUsername||!discordUsername){alert('Enter your email, password, Roblox username and Discord username.');return;}
+ if(password.length<6){alert('Your password must contain at least 6 characters.');return;}
+ $('authStatus').textContent='Creating your passenger account...';
+ try{
+  const credential=await auth.createUserWithEmailAndPassword(email,password);
+  await db.collection('users').doc(credential.user.uid).set({
+   email:credential.user.email,
+   robloxUsername,
+   discordUsername,
+   balance:100,
+   role:'passenger',
+   createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  currentUser=robloxUsername;
+  accounts[currentUser]={balance:100};
+  bookings.filter(b=>b.user==='guest').forEach(b=>b.user=currentUser);
+  save();updateBookingAccountStatus();renderMyBookings();
+  $('authStatus').textContent='Passenger account created and saved to Firebase.';
+ }catch(error){$('authStatus').textContent='';alert(error.message||'Unable to create account.');}
+};
+auth.onAuthStateChanged(async user=>{
+ if(!user){currentUser='';window.currentDiscordUsername='';passengerThreadOpen=false;if(passengerMessageUnsub){passengerMessageUnsub();passengerMessageUnsub=null;}if(passengerConversationUnsub){passengerConversationUnsub();passengerConversationUnsub=null;}updateBookingAccountStatus();updateMessageNotice(0);return;}
+ try{await loadPassengerProfile(user);}catch(error){$('authStatus').textContent='';alert(error.message||'Unable to load passenger profile.');}
+});
+function renderMyBookings(){
+ let mine=bookings.filter(b=>b.user===currentUser);
+ $('myBookings').innerHTML=`<h2>${esc(currentUser)}'s account</h2><div class="portal-card"><h3>Virtual bank</h3><div class="price">£${userBalance()}</div><p class="muted">Fictional website currency only. This is not real money.</p>${transactions.filter(t=>t.user===currentUser).map(t=>`<p>${esc(t.reason)} · ${t.amount<0?'-':'+'}£${Math.abs(t.amount)} <small>${esc(t.date.slice(0,10))}</small></p>`).join('')||'<p class="muted">No transactions yet.</p>'}</div>`+(mine.length?mine.map(b=>{
+  let f=flights.find(x=>x.id===b.flightId)||{};
+  return `<div class="flight"><div><small>${b.ref}</small><strong>${esc(f.from||'?')} → ${esc(f.to||'?')}</strong></div><div>${esc(f.date||'')}<small>${esc(f.dep||'')} UTC · Gate ${esc(f.gate||'TBC')}</small></div><div>${esc(b.fare)}<small>Seats ${b.seats.join(', ')}</small></div><button class="secondary" onclick="openPortal('${b.ref}')">View flight</button><button class="secondary danger" onclick="cancelBooking('${esc(b.ref)}')">Cancel</button></div>`;
+ }).join(''):'<p class="muted">No bookings saved.</p>')+'<button class="secondary" id="signOut">Sign out</button>';
+ renderPassengerMessages();renderMyFlights();
+ $('signOut').onclick=async()=>{await auth.signOut();currentUser='';$('myBookings').innerHTML='Signed out.';renderPassengerMessages();updateBookingAccountStatus();$('authStatus').textContent='You are signed out.'};
+}
+function renderMyFlights(){
+ const box=$('myFlightsList');if(!box)return;
+ if(!currentUser){box.innerHTML='<p class="muted">Sign in through My Bookings to view your flights.</p>';return;}
+ const mine=bookings.filter(b=>b.user===currentUser&&!b.cancelled);
+ box.innerHTML=mine.length?mine.map(b=>{const f=flights.find(x=>x.id===b.flightId)||{};return `<div class="flight"><div><small>${esc(b.ref)} · ${esc(b.flightNo)}</small><strong>${esc(f.from||'?')} → ${esc(f.to||'?')}</strong></div><div><small>${esc(f.date||'')}</small><b>${esc(f.dep||'')} UTC</b></div><div><small>Operated by</small><b>${esc(f.operator||'Ryanair')}</b></div><button class="primary" onclick="openPortal('${esc(b.ref)}')">Open flight portal</button></div>`}).join(''):'<p class="muted">You have no booked flights.</p>';
+}
+function renderStatusBoard(){
+ const box=$('statusBoard');if(!box)return;
+ const ordered=[...flights].sort((a,b)=>(a.date+' '+a.dep).localeCompare(b.date+' '+b.dep));
+ box.innerHTML=ordered.length?'<div style="overflow-x:auto"><table><tr><th>Flight</th><th>Destination</th><th>Date</th><th>Departure (UTC)</th><th>Gate</th><th>Status</th></tr>'+ordered.map(f=>`<tr><td><b>${esc(f.no)}</b><br><small>${esc(f.from)}</small></td><td>${esc(f.to)}</td><td>${esc(f.date)}</td><td>${esc(f.dep)}</td><td>${esc(f.gate||'TBC')}</td><td><span class="tag">${esc(f.status||'Scheduled')}</span><br><small>${esc(f.operator||'Ryanair')}</small></td></tr>`).join('')+'</table></div>':'<p class="muted">No flights currently scheduled.</p>';
+}
+function openPortal(ref){
+  let b=bookings.find(x=>x.ref===ref);
+  if(!b)return;
+  let f=flights.find(x=>x.id===b.flightId);
+  if(!f){
+    bookings=bookings.filter(x=>x.flightId!==b.flightId);
+    save();
+    showPage('manage');
+    renderMyBookings();
+    alert('This flight is no longer available. Its booking has been removed.');
+    return;
+  }
+  showPage('portal');
+  const flightStatus=String(f.status||'Scheduled').toLowerCase();
+  const statusMessages={
+   'scheduled':['Booking confirmed','Your flight is scheduled. Check this portal again closer to departure for check-in and gate information.'],
+   'check-in':['Check-in is open','Please proceed to the airport and follow the check-in desk information shown below.'],
+   'boarding':['Boarding now','Proceed to the displayed gate and have your booking reference ready. Follow airport staff instructions.'],
+   'gate closed':['Gate closed','The gate is marked closed. Contact airport or airline staff immediately if you believe you are affected.'],
+   'departed':['Flight departed','This flight has departed. Live departure information is no longer available here.'],
+   'in flight':['Aircraft en route','Your flight is currently shown as in flight.'],
+   'landed':['Flight landed','The flight is marked as landed. Please follow airport arrival signs and staff instructions.'],
+   'delayed':['Flight delayed','The flight is delayed. Check the latest announcement below and keep checking for updated departure information.'],
+   'cancelled':['Flight cancelled','This flight is cancelled. Please contact staff using Private Messages for assistance with your booking.']
+  };
+  const statusInfo=statusMessages[flightStatus]||['Flight update',`Current flight status: ${f.status||'Unknown'}. Check announcements for further information.`];
+  const isCancelled=flightStatus==='cancelled';
+  const isDeparted=['departed','in flight','landed'].includes(flightStatus);
+  let phasePanel='';
+  if(flightStatus==='scheduled') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Before your flight</h3><p>Your booking is confirmed. Check-in has not opened yet. Return here for check-in desk, boarding and gate updates.</p></div>`;
+  else if(flightStatus==='check-in') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Check-in open</h3><p>Proceed to the airport check-in area.</p><div class="portal-grid"><div class="portal-stat"><small>Terminal</small><b>${esc(f.terminal||'TBC')}</b></div><div class="portal-stat"><small>Check-in desks</small><b>${esc(f.desks||'TBC')}</b></div></div></div>`;
+  else if(flightStatus==='boarding') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Proceed to boarding</h3><p>Go to your departure gate now and have your booking reference ready.</p><div class="portal-grid"><div class="portal-stat"><small>Gate</small><b>${esc(f.gate||'TBC')}</b></div><div class="portal-stat"><small>Boarding time · UTC</small><b>${esc(f.boarding||'TBC')}</b></div></div></div>`;
+  else if(flightStatus==='gate closed') phasePanel=`<div class="notice"><b>Gate closed</b><br>Boarding is no longer shown as available. Speak to airport staff if you need assistance.</div>`;
+  else if(flightStatus==='departed') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Departure update</h3><p>This aircraft has departed. The passenger portal is now showing post-departure information.</p></div>`;
+  else if(flightStatus==='in flight') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Onboard</h3><p>Your aircraft is currently en route. Onboard menu information is available below if published by staff.</p></div>`;
+  else if(flightStatus==='landed') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Arrival</h3><p>Your flight is marked as landed. Follow airport signs and staff instructions for arrivals and baggage collection.</p></div>`;
+  else if(flightStatus==='delayed') phasePanel=`<div class="notice"><b>Delay information</b><br>${esc(f.announcement||'The flight is delayed. Please monitor this portal for updates.')}</div>`;
+  else if(isCancelled) phasePanel=`<div class="notice"><b>Action required</b><br>Your flight is cancelled. Do not travel to the gate for this flight. Send staff a private message from My Bookings for assistance.</div>`;
+  $('passengerPortal').innerHTML=`
+  <div class="portal-top">
+    <div class="portal-strip"><b>RYANAIR GROUP</b><span>${esc(f.date)}</span><span>${esc(b.flightNo)}</span><span>${esc(f.status||'Booked')}</span></div>
+  </div>
+  <div class="notice ${isCancelled?'':'success'}"><b>${statusInfo[0]}</b><br>${statusInfo[1]}</div>
+  ${phasePanel}
+  <div class="portal-card">
+    <div class="portal-booking-head"><span class="tag">${esc(f.status||'Booked')}</span><span class="muted">BOOKING ${esc(b.ref)}</span></div>
+    <div class="portal-route">
+      <div class="airport"><strong>${esc(airportCode(f.from))}</strong><small>${esc(f.from)}</small><b>${esc(f.dep||'TBC')} UTC</b><small>Departure</small></div>
+      <div class="route-line">✦</div>
+      <div class="airport"><strong>${esc(airportCode(f.to))}</strong><small>${esc(f.to)}</small><b>${esc(f.arr||'TBC')} UTC</b><small>Arrival</small></div>
+    </div>
+    <div class="portal-grid">
+      <div class="portal-stat"><small>Gate</small><b>${isCancelled?'Cancelled':esc(f.gate||'TBC')}</b></div>
+      <div class="portal-stat"><small>Terminal</small><b>${esc(f.terminal||'TBC')}</b></div>
+      <div class="portal-stat"><small>Boarding · UTC</small><b>${esc(f.boarding||'TBC')}</b></div>
+      <div class="portal-stat"><small>Check-in desks</small><b>${esc(f.desks||'TBC')}</b></div>
+      <div class="portal-stat"><small>Aircraft</small><b>${esc(f.aircraft||'TBC')}</b></div>
+      <div class="portal-stat"><small>Fare</small><b>${esc(b.fare)}</b></div>
+    </div>
+  </div>
+  <div class="portal-card">
+    <h3 class="portal-section-title">Passenger details</h3>
+    ${b.passengers.map((p,i)=>`<p><b>@${esc(p.roblox||'Unknown')}</b> <span class="muted">· Discord: ${esc(p.discord||'Not supplied')} · Seat ${esc(b.seats[i]||'TBC')}</span></p>`).join('')}
+    <p class="muted">Booking reference: ${esc(b.ref)}</p>
+  </div>
+  <div class="portal-card"><h3 class="portal-section-title">Latest announcement</h3><p>${esc(f.announcement||'There are no current announcements.')}</p></div>
+  <div class="portal-card"><h3 class="portal-section-title">Private messages</h3><p>Use My Bookings to read and reply to private messages from staff.</p><button class="secondary" onclick="showPage('manage');renderMyBookings()">Open messages</button></div>
+  ${flightStatus==='in flight'?`<div class="portal-card"><h3 class="portal-section-title">Inflight menu</h3><p style="white-space:pre-wrap">${esc(f.menu||'Inflight menu information will be published here.')}</p></div>`:''}
+  ${f.magazineOn&&f.magazine?`<div class="portal-card"><h3 class="portal-section-title">Inflight magazine</h3><a href="${esc(f.magazine)}" target="_blank" rel="noopener">Open magazine</a></div>`:''}
+  <div class="actions"><button class="secondary" onclick="showPage('manage')">Back to bookings</button>${!isDeparted&&!isCancelled?`<button class="secondary cancel-booking" onclick="cancelBooking('${esc(b.ref)}')">Cancel booking</button>`:''}</div>`;
+}
+function airportCode(name){
+  const known={'London Stansted':'STN','Krakow':'KRK','Dublin':'DUB','Milan Bergamo':'BGY'};
+  return known[name]||String(name||'').split(/\s+/).map(w=>w[0]||'').join('').slice(0,3).toUpperCase()||'---';
+}
+async function cancelBooking(ref){
+ const booking=bookings.find(x=>x.ref===ref);if(!booking)return;
+ const paid=Math.max(0,Number(booking.amountPaid)||0);
+ const refund=Math.round(paid*0.4);
+ if(booking.refunded){alert('This booking has already been refunded.');return;}
+ if(!confirm(`Cancel booking ${ref}?\n\nOnly 40% of the virtual currency actually spent will be returned.\nAmount paid: £${paid}.\nRefund: £${refund}.\nThe remaining 60% will not be refunded.`))return;
+ if(refund>0){
+  if(!accounts[booking.user])accounts[booking.user]={balance:100};
+  accounts[booking.user].balance=(Number(accounts[booking.user].balance)||0)+refund;
+  recordTransaction(booking.user,refund,`40% cancellation refund for ${booking.flightNo}`,ref,'System');
+ }
+ try{
+  await db.collection('bookings').doc(ref).update({cancelled:true,cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
+  booking.refunded=true;
+  bookings=bookings.filter(x=>x.ref!==ref);
+  save();showPage('manage');renderMyBookings();alert(`Booking cancelled and recorded online. £${refund} virtual currency refunded locally.`);
+ }catch(error){
+  if(refund>0){accounts[booking.user].balance=(Number(accounts[booking.user].balance)||0)-refund;transactions=transactions.filter(t=>!(t.ref===ref&&t.reason.includes('cancellation refund')));}
+  alert('The cancellation could not be recorded online. Your booking has not been cancelled. Details: '+(error.message||error));
+  save();
+ }
+}
+$('statusBtn').onclick=()=>{
+ let f=flights.find(x=>x.no.toUpperCase()===$('statusSearch').value.trim().toUpperCase());
+ $('statusResult').innerHTML=f?`<div class="portal-card"><span class="tag">${esc(f.status)}</span><h2>${esc(f.no)} · ${esc(f.from)} → ${esc(f.to)}</h2><p>Date: ${esc(f.date)}</p><p>Departure: ${esc(f.dep)} UTC · Arrival: ${esc(f.arr)} UTC · Gate: ${esc(f.gate)}</p><p>Operated by: ${esc(f.operator||'Ryanair')}</p></div>`:'<div class="notice">Flight not found.</div>';
+};
+$('staffLoginBtn').onclick = async () => {
+  const email = $('staffEmail').value.trim();
+  const password = $('staffPassword').value;
+
+  if (!email || !password) {
+    alert('Please enter your email and password.');
+    return;
+  }
+
+  try {
+    const result = await auth.signInWithEmailAndPassword(email, password);
+    const user = result.user;
+
+    const userDoc = await db.collection('users').doc(user.uid).get();
+
+    if (!userDoc.exists) {
+      await auth.signOut();
+      alert('No staff permissions found.');
+      return;
+    }
+
+    const role = userDoc.data().role;
+
+    if (role !== 'admin' && role !== 'staff') {
+      await auth.signOut();
+      alert('Access denied. This account is not authorised.');
+      return;
+    }
+
+    staff = true;
+    $('staffLogin').classList.add('hidden');
+    $('staffTools').classList.remove('hidden');
+    renderAdmin();
+    populatePortalSelect();
+
+  } catch (error) {
+    console.error(error);
+    alert('Staff sign-in failed: ' + error.message);
+  }
+};
+$('addFlight').onclick=()=>{
+ let f={id:Date.now(),no:$('newNo').value.trim().toUpperCase(),from:$('newFrom').value.trim(),to:$('newTo').value.trim(),date:$('newDate').value,dep:$('newDep').value,arr:$('newArr').value,gate:$('newGate').value.trim()||'TBC',aircraft:$('newAircraft').value.trim()||'TBC',operator:$('newOperator').value||'Ryanair',rewardAmount:Math.max(0,Math.round(Number($('newReward').value)||0)),status:'Scheduled'};
+ if(!f.no||!f.from||!f.to||!f.date){alert('Complete flight number, origin, destination and date.');return}
+ flights.push(f);save();renderAdmin();renderFlights();renderStatusBoard();populatePortalSelect();alert('Flight added.');
+};
+function deleteFlight(id){
+ let f=flights.find(x=>x.id===id);if(!f)return;
+ if(!confirm(`Delete ${f.no}? All bookings for this flight will also be deleted.`))return;
+ flights=flights.filter(x=>x.id!==id);
+ bookings=bookings.filter(b=>b.flightId!==id);
+ save();renderAdmin();renderFlights();renderStatusBoard();populatePortalSelect();renderMyBookings();renderMyFlights();
+}
+function editFlight(id,key,value){let f=flights.find(x=>x.id===id);if(f){f[key]=value;save();renderFlights();renderStatusBoard();renderMyFlights()}}
+function editFlightPrompt(id){
+ let f=flights.find(x=>x.id===id);if(!f)return;
+ for(let [key,label] of [['no','Flight number'],['from','Origin'],['to','Destination'],['date','Date'],['dep','Departure time (UTC)'],['arr','Arrival time (UTC)'],['aircraft','Aircraft'],['operator','Operated by (Ryanair, Buzz, Lauda Europe or Malta Air)']]){
+  let v=prompt(label,f[key]||'');if(v===null)return;f[key]=v;
+ }
+ save();renderAdmin();renderFlights();renderStatusBoard();renderMyFlights();
+}
+function renderAdmin(){
+ renderStaffMessages();
+ $('adminFlightTable').innerHTML='<table><tr><th>Flight</th><th>Route/date</th><th>Operated by</th><th>Departure / arrival (UTC)</th><th>Gate</th><th>Status</th><th>Actions</th></tr>'+flights.map(f=>`<tr><td><b>${esc(f.no)}</b></td><td>${esc(f.from)} → ${esc(f.to)}<br>${esc(f.date)}</td><td>${esc(f.operator||'Ryanair')}</td><td>${esc(f.dep)} / ${esc(f.arr)} UTC</td><td><input value="${esc(f.gate)}" onchange="editFlight(${f.id},'gate',this.value)"></td><td><select onchange="editFlight(${f.id},'status',this.value)">${['Scheduled','Check-in','Boarding','Gate closed','Departed','In flight','Landed','Delayed','Cancelled'].map(s=>`<option ${f.status===s?'selected':''}>${s}</option>`).join('')}</select></td><td><button class="secondary" onclick="editFlightPrompt(${f.id})">Edit</button> <button class="secondary danger" onclick="deleteFlight(${f.id})">Delete</button></td></tr>`).join('')+'</table>';
+ $('adminBookingTable').innerHTML=bookings.length?'<table><tr><th>Reference</th><th>Flight</th><th>User</th><th>Passengers</th><th>Fare</th><th>Paid</th></tr>'+bookings.map(b=>`<tr><td>${esc(b.ref)}</td><td>${esc(b.flightNo)}</td><td>${esc(b.user)}</td><td>${b.passengers.length}</td><td>${esc(b.fare)}</td><td>£${Number(b.amountPaid)||0}</td></tr>`).join('')+'</table>':'<p class="muted">No bookings.</p>';
+ const attendance=$('attendanceTable');
+ if(attendance){attendance.innerHTML=bookings.length?'<table><tr><th>Flight</th><th>Roblox username</th><th>Passenger ref</th><th>Reward</th><th>Gate verification / reward</th></tr>'+bookings.flatMap(b=>b.passengers.map((p,i)=>{
+  const f=flights.find(x=>x.id===b.flightId)||{};const reward=Math.max(0,Math.round(Number(f.rewardAmount)||0));
+  const done=(b.rewardedPassengerIndexes||[]).includes(i);
+  return `<tr><td>${esc(b.flightNo)}</td><td>@${esc(p.roblox||'Unknown')}</td><td>${esc((b.passengerRefs||[])[i]||b.ref)}</td><td>£${reward}</td><td><button class="secondary" ${done||reward===0?'disabled':''} onclick="awardAttendanceReward('${esc(b.ref)}',${i})">${done?'Verified &amp; rewarded':reward===0?'No reward set':'Verify at gate &amp; award'}</button></td></tr>`;
+ })).join('')+'</table>':'<p class="muted">No passenger bookings to verify.</p>';}
+}
+function awardAttendanceReward(ref,index){
+ const b=bookings.find(x=>x.ref===ref);if(!b||!staff)return;
+ const f=flights.find(x=>x.id===b.flightId);if(!f)return;
+ const reward=Math.max(0,Math.round(Number(f.rewardAmount)||0));if(reward<=0)return;
+ b.rewardedPassengerIndexes=b.rewardedPassengerIndexes||[];
+ if(b.rewardedPassengerIndexes.includes(index)){alert('This passenger has already received the reward for this flight.');return;}
+ const passenger=b.passengers[index];if(!passenger)return;
+ if(!confirm(`Confirm that @${passenger.roblox||'Unknown'} was physically present and their Roblox username was checked at the gate for ${b.flightNo}?\n\nAward: £${reward} virtual currency.`))return;
+ if(!accounts[b.user])accounts[b.user]={balance:100};
+ accounts[b.user].balance=(Number(accounts[b.user].balance)||0)+reward;
+ b.rewardedPassengerIndexes.push(index);
+ recordTransaction(b.user,reward,`Staff attendance reward for ${b.flightNo}`,b.ref,'Staff');save();renderAdmin();renderMyBookings();
+ alert(`£${reward} virtual currency awarded to @${passenger.roblox||'Unknown'}.`);
+}
+
+let passengerMessageUnsub=null,passengerConversationUnsub=null,staffMessageUnsub=null,staffConversationsUnsub=null,activeStaffUid='',activeConversationUid='',passengerThreadOpen=false;
+function conversationRef(uid){return db.collection('conversations').doc(uid)}
+function messageDate(value){if(value&&typeof value.toDate==='function')return value.toDate();const d=new Date(value||Date.now());return Number.isNaN(d.getTime())?new Date():d}
+function openMessages(){if(staff){showPage('staff');setTimeout(()=>{$('staffMessaging')?.scrollIntoView({behavior:'smooth',block:'start'});},80);return;}showPage('manage');setTimeout(()=>{$('passengerMessages')?.scrollIntoView({behavior:'smooth',block:'start'});},80);renderPassengerMessages(true)}
+function updateMessageNotice(count){const btn=$('messageNotice');if(!btn)return;btn.classList.toggle('hidden',!staff&&count<=0);btn.classList.toggle('has-unread',count>0);$('messageUnreadCount').textContent=String(count);}
+function renderThread(items,viewer){const boxClass='message-thread';return `<div class="${boxClass}">${items.length?items.map(m=>{const mine=m.senderUid===viewer;return `<div class="message-bubble ${mine?'mine':''}"><small>${mine?'You':esc(m.senderLabel||'Staff')} · ${messageDate(m.createdAt).toLocaleString()}</small><p>${esc(m.text)}</p></div>`}).join(''):'<p class="muted">No messages yet. Send a message to start the conversation.</p>'}</div>`}
+function watchPassengerMessages(){if(passengerMessageUnsub){passengerMessageUnsub();passengerMessageUnsub=null;}if(passengerConversationUnsub){passengerConversationUnsub();passengerConversationUnsub=null;}if(!auth.currentUser||!currentUser)return;const uid=auth.currentUser.uid;passengerConversationUnsub=conversationRef(uid).onSnapshot(doc=>{const unread=doc.exists&&doc.data().unreadForPassenger?1:0;updateMessageNotice(unread);});passengerMessageUnsub=conversationRef(uid).collection('messages').orderBy('createdAt','asc').onSnapshot(snap=>{const items=snap.docs.map(d=>({id:d.id,...d.data()}));const list=$('passengerMessageList');if(list)list.innerHTML=renderThread(items,uid);const unread=items.filter(m=>m.senderUid!==uid&&!m.readByPassenger).length;const notice=$('passengerMessageUnread');if(notice)notice.textContent=unread?`${unread} unread message${unread===1?'':'s'}`:'';if(passengerThreadOpen&&document.visibilityState==='visible'&&!$('managePage').classList.contains('hidden'))markPassengerMessagesRead(uid,items);},err=>{const list=$('passengerMessageList');if(list)list.textContent='Unable to load messages: '+err.message;});}
+async function markPassengerMessagesRead(uid,items){const unread=items.filter(m=>m.senderUid!==uid&&!m.readByPassenger);if(!unread.length)return;const batch=db.batch();unread.forEach(m=>batch.update(conversationRef(uid).collection('messages').doc(m.id),{readByPassenger:true}));batch.set(conversationRef(uid),{unreadForPassenger:false},{merge:true});try{await batch.commit()}catch(e){console.warn('Could not mark passenger messages read',e)}}
+function renderPassengerMessages(forceOpen=false){const panel=$('passengerMessages');if(!panel)return;if(forceOpen)passengerThreadOpen=true;if(!auth.currentUser||!currentUser){$('passengerMessageList').textContent='Sign in to view your private messages.';panel.classList.add('hidden');updateMessageNotice(0);return;}panel.classList.remove('hidden');if(forceOpen)panel.scrollIntoView({behavior:'smooth',block:'start'});if(!passengerMessageUnsub)watchPassengerMessages();}
+$('sendPassengerMessage').onclick=async()=>{if(!auth.currentUser||!currentUser){alert('Sign in first.');return;}const text=$('passengerMessageReply').value.trim();if(!text){alert('Write a message first.');return;}if(text.length>1000){alert('Messages must be 1,000 characters or fewer.');return;}const uid=auth.currentUser.uid;const ref=conversationRef(uid);const now=firebase.firestore.FieldValue.serverTimestamp();try{await ref.set({ownerUid:uid,robloxUsername:currentUser,discordUsername:window.currentDiscordUsername||'',updatedAt:now,lastMessage:text.slice(0,120),unreadForStaff:true,unreadForPassenger:false},{merge:true});await ref.collection('messages').add({text,senderUid:uid,senderRole:'passenger',senderLabel:currentUser,createdAt:now,readByPassenger:true,readByStaff:false});$('passengerMessageReply').value='';alert('Your message has been sent to staff.');}catch(e){alert('Message could not be sent. Check that the updated Firestore rules have been published. '+e.message)}};
+function watchStaffConversations(){if(staffConversationsUnsub){staffConversationsUnsub();staffConversationsUnsub=null;}if(!staff)return;staffConversationsUnsub=db.collection('conversations').orderBy('updatedAt','desc').onSnapshot(snap=>{const docs=snap.docs;const list=$('staffConversationList');if(list)list.innerHTML=docs.length?docs.map(d=>{const c=d.data();return `<button class="secondary" onclick="selectStaffConversation('${d.id}')">${esc(c.robloxUsername||c.ownerUid.slice(0,8))}${c.unreadForStaff?' · NEW':''}</button>`}).join(''):'<p class="muted">No passenger conversations yet.</p>';const sel=$('messageRecipient');if(sel){const prev=activeStaffUid;sel.innerHTML=docs.map(d=>{const c=d.data();return `<option value="${d.id}">${esc(c.robloxUsername||c.ownerUid)}${c.unreadForStaff?' · UNREAD':''}</option>`}).join('');if(docs.some(d=>d.id===prev))sel.value=prev;else if(docs.length)sel.value=docs[0].id;if(sel.value&&(!staffMessageUnsub||activeStaffUid!==sel.value))selectStaffConversation(sel.value);else if(!sel.value)$('staffMessageHistory').textContent='No passenger conversations yet.';}const unread=docs.filter(d=>d.data().unreadForStaff).length;updateMessageNotice(unread);},err=>{const list=$('staffConversationList');if(list)list.textContent='Unable to load conversations: '+err.message;});}
+function selectStaffConversation(uid){if(!staff||!uid)return;activeStaffUid=uid;const sel=$('messageRecipient');if(sel&&sel.value!==uid)sel.value=uid;if(staffMessageUnsub){staffMessageUnsub();staffMessageUnsub=null;}const ref=conversationRef(uid);staffMessageUnsub=ref.collection('messages').orderBy('createdAt','asc').onSnapshot(async snap=>{const items=snap.docs.map(d=>({id:d.id,...d.data()}));const box=$('staffMessageHistory');if(box)box.innerHTML=renderThread(items,auth.currentUser?.uid||'');const unread=items.filter(m=>m.senderUid!==auth.currentUser?.uid&&!m.readByStaff);if(unread.length){const batch=db.batch();unread.forEach(m=>batch.update(ref.collection('messages').doc(m.id),{readByStaff:true}));batch.set(ref,{unreadForStaff:false},{merge:true});try{await batch.commit()}catch(e){console.warn(e)}}},err=>{$('staffMessageHistory').textContent='Unable to load conversation: '+err.message;});}
+$('messageRecipient').onchange=()=>selectStaffConversation($('messageRecipient').value);
+$('sendStaffMessage').onclick=async()=>{if(!staff||!auth.currentUser){alert('Staff sign-in required.');return;}const uid=$('messageRecipient').value,text=$('staffMessageText').value.trim();if(!uid){alert('Select a passenger conversation.');return;}if(!text){alert('Write a message first.');return;}if(text.length>1000){alert('Messages must be 1,000 characters or fewer.');return;}const ref=conversationRef(uid),now=firebase.firestore.FieldValue.serverTimestamp();try{await ref.set({updatedAt:now,lastMessage:text.slice(0,120),unreadForPassenger:true,unreadForStaff:false},{merge:true});await ref.collection('messages').add({text,senderUid:auth.currentUser.uid,senderRole:'staff',senderLabel:'Staff',createdAt:now,readByPassenger:false,readByStaff:true});$('staffMessageText').value='';alert('Private message sent.');}catch(e){alert('Message could not be sent. Check Firestore rules. '+e.message)}};
+function renderStaffMessages(){if(!staff)return;watchStaffConversations();}
+
+function populatePortalSelect(){
+ let el=$('portalFlightSelect'),old=el.value;
+ el.innerHTML=flights.map(f=>`<option value="${f.id}">${esc(f.no)} · ${esc(f.from)} → ${esc(f.to)}</option>`).join('');
+ if(flights.some(f=>String(f.id)===old))el.value=old;
+ loadPortalEditor();
+}
+function loadPortalEditor(){
+ let f=flights.find(x=>String(x.id)===$('portalFlightSelect').value);if(!f)return;
+ $('portalTerminal').value=f.terminal||'';$('portalDesks').value=f.desks||'';
+ $('portalBoarding').value=f.boarding||'';$('portalAnnouncement').value=f.announcement||'';
+ $('portalMenu').value=f.menu||'';$('portalMagazine').value=f.magazine||'';
+ $('portalMagazineOn').value=String(!!f.magazineOn);
+}
+$('portalFlightSelect').onchange=loadPortalEditor;
+$('savePortalInfo').onclick=()=>{
+ let f=flights.find(x=>String(x.id)===$('portalFlightSelect').value);if(!f)return;
+ Object.assign(f,{
+ terminal:$('portalTerminal').value,desks:$('portalDesks').value,
+ boarding:$('portalBoarding').value,announcement:$('portalAnnouncement').value,
+ menu:$('portalMenu').value,magazine:$('portalMagazine').value,
+ magazineOn:$('portalMagazineOn').value==='true'
+ });
+ save();alert('Passenger information saved.');
+};
+renderFlights();goStep(1);if(!currentUser)$('passengerMessages').classList.add('hidden');$('bookingPriceBar').classList.add('hidden');
+</script>
+</body>
+</html>
