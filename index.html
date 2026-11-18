@@ -974,8 +974,9 @@ nav button.staff-nav-tab{margin-left:18px !important}
 </section>
 
 <section id="managePage" class="hidden">
-<div class="hero"><h1>My profile</h1><p>Manage your passenger account, virtual balance and private messages.</p></div>
+<div class="hero"><h1>My profile</h1><p>Manage your account and view your private message threads.</p></div>
 <div class="panel">
+<div id="passengerAccountArea">
 <h2>Passenger account</h2>
 <div class="grid">
 <div class="field"><label>Email address</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
@@ -986,12 +987,13 @@ nav button.staff-nav-tab{margin-left:18px !important}
 <div class="field"><label>Discord username (for new accounts)</label><input id="loginDiscord" autocomplete="off" placeholder="Your Discord username"></div>
 </div>
 <div class="actions"><button class="primary" id="loginBtn">Sign in</button><button class="secondary" id="createAccountBtn">Create passenger account</button></div>
-<div class="notice">Email and password are handled by Firebase Authentication. Your Roblox and Discord usernames are stored in your private Firestore profile. Bookings and passenger-to-staff messages are stored in Firestore. Virtual-currency transactions remain browser-local demo data.</div>
+<div class="notice">Email and password are handled by Firebase Authentication. Your Roblox and Discord usernames are stored in your private Firestore profile. Bookings and private messages are stored in Firestore. Virtual-currency transactions remain browser-local demo data.</div>
 <div id="authStatus" class="muted" aria-live="polite"></div>
 <div id="myBookings"></div>
+</div>
 <div class="portal-card" id="passengerMessages">
- <h2>Support messages</h2>
- <p class="muted">Staff may open a private support thread for your account. You can reply while the thread is open.</p>
+ <h2>Private messages</h2>
+ <p class="muted">Your private conversations with staff are shown here. Only the signed-in account and authorised staff can access these threads. You can reply while a thread is open.</p>
  <div id="passengerMessageUnread" class="unread-label" aria-live="polite"></div>
  <div id="passengerThreadList" class="conversation-list">Sign in to view support threads.</div>
  <div id="passengerThreadPanel" class="hidden">
@@ -1100,7 +1102,7 @@ nav button.staff-nav-tab{margin-left:18px !important}
 <div class="portal-card">
  <h3>Create a support thread</h3>
  <div class="grid">
-  <div class="field"><label>Passenger account</label><select id="messageRecipient"><option value="">Loading passenger accounts...</option></select></div>
+  <div class="field"><label>Account to message</label><select id="messageRecipient"><option value="">Loading passenger accounts...</option></select></div>
   <div class="field"><label>Thread subject</label><input id="newThreadSubject" maxlength="100" placeholder="e.g. Booking enquiry"></div>
  </div>
  <button class="primary" id="createSupportThread">Create thread</button>
@@ -1356,15 +1358,15 @@ $('createAccountBtn').onclick=async()=>{
  }catch(error){$('authStatus').textContent='';alert(error.message||'Unable to create account.');}
 };
 auth.onAuthStateChanged(async user=>{
- if(!user){currentUser='';window.currentDiscordUsername='';staff=false;employee=false;currentRole='guest';passengerThreadOpen=false;stopSupportListeners();updateBookingAccountStatus();updateMessageNotice(0);return;}
+ if(!user){currentUser='';window.currentDiscordUsername='';staff=false;employee=false;currentRole='guest';passengerThreadOpen=false;stopSupportListeners();const accountArea=$('passengerAccountArea');if(accountArea)accountArea.classList.remove('hidden');const inbox=$('passengerMessages');if(inbox)inbox.classList.add('hidden');updateBookingAccountStatus();updateMessageNotice();return;}
  try{
   const roleDoc=await db.collection('users').doc(user.uid).get();
   if(!roleDoc.exists){await auth.signOut();throw new Error('No account permissions were found. Contact an administrator.');}
   currentRole=String(roleDoc.data().role||'passenger');
   staff=currentRole==='staff'||currentRole==='admin';
   employee=currentRole==='employee';
-  if(staff){currentUser='';$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');renderAdmin();populatePortalSelect();$('crewAuthStatus').textContent='';return;}
-  if(employee){currentUser='';$('crewLogin').classList.add('hidden');$('crewTools').classList.remove('hidden');$('crewAuthStatus').textContent='Signed in with employee access.';return;}
+  if(staff){currentUser='';$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');renderAdmin();populatePortalSelect();renderPassengerMessages();$('crewAuthStatus').textContent='';return;}
+  if(employee){currentUser='';$('crewLogin').classList.add('hidden');$('crewTools').classList.remove('hidden');$('crewAuthStatus').textContent='Signed in with employee access.';renderPassengerMessages();return;}
   if(currentRole!=='passenger'){await auth.signOut();throw new Error('This account role is not authorised for the passenger portal.');}
   await loadPassengerProfile(user);
  }catch(error){$('authStatus').textContent='';$('crewAuthStatus').textContent=error.message||'Unable to verify account role.';console.error(error);}
@@ -1536,7 +1538,7 @@ $('crewLoginBtn').onclick=async()=>{
   }
   currentRole=role;employee=true;staff=false;
   $('crewLogin').classList.add('hidden');$('crewTools').classList.remove('hidden');
-  $('crewAuthStatus').textContent='Signed in with employee access.';
+  $('crewAuthStatus').textContent='Signed in with employee access.';renderPassengerMessages();
  }catch(error){$('crewAuthStatus').textContent='';alert('Employee sign-in failed: '+error.message);}
 };
 $('crewSignOut').onclick=async()=>{await auth.signOut();$('crewTools').classList.add('hidden');$('crewLogin').classList.remove('hidden');$('crewAuthStatus').textContent='You are signed out.';};
@@ -1587,58 +1589,66 @@ function awardAttendanceReward(ref,index){
  alert(`£${reward} virtual currency awarded to @${passenger.roblox||'Unknown'}.`);
 }
 
-let passengerThreadsUnsub=null,passengerMessagesUnsub=null,passengerThreadDocUnsub=null,staffThreadsUnsub=null,staffMessagesUnsub=null,staffThreadDocUnsub=null;
-let activePassengerThreadId='',activeStaffThreadId='',passengerThreadOpen=false;
+let passengerThreadsUnsub=null,legacyThreadsUnsub=null,createdThreadsUnsub=null,passengerMessagesUnsub=null,passengerThreadDocUnsub=null,staffThreadsUnsub=null,staffMessagesUnsub=null,staffThreadDocUnsub=null;
+let activePassengerThreadId='',activeStaffThreadId='',passengerThreadOpen=false,myUnreadCount=0,staffUnreadCount=0;
 const supportThreads=db.collection('supportThreads');
 function supportThreadRef(id){return supportThreads.doc(id)}
 function messageDate(value){if(value&&typeof value.toDate==='function')return value.toDate();const d=new Date(value||Date.now());return Number.isNaN(d.getTime())?new Date():d}
 function stopSupportListeners(){
- [passengerThreadsUnsub,passengerMessagesUnsub,passengerThreadDocUnsub,staffThreadsUnsub,staffMessagesUnsub,staffThreadDocUnsub].forEach(fn=>{if(fn)fn()});
- passengerThreadsUnsub=passengerMessagesUnsub=passengerThreadDocUnsub=staffThreadsUnsub=staffMessagesUnsub=staffThreadDocUnsub=null;
- activePassengerThreadId='';activeStaffThreadId='';
+ [passengerThreadsUnsub,legacyThreadsUnsub,createdThreadsUnsub,passengerMessagesUnsub,passengerThreadDocUnsub,staffThreadsUnsub,staffMessagesUnsub,staffThreadDocUnsub].forEach(fn=>{if(fn)fn()});
+ passengerThreadsUnsub=legacyThreadsUnsub=createdThreadsUnsub=passengerMessagesUnsub=passengerThreadDocUnsub=staffThreadsUnsub=staffMessagesUnsub=staffThreadDocUnsub=null;
+ activePassengerThreadId='';activeStaffThreadId='';myUnreadCount=0;staffUnreadCount=0;
 }
 function openMessages(){
- if(staff){showPage('staff');setTimeout(()=>{$('staffMessaging')?.scrollIntoView({behavior:'smooth',block:'start'});},80);return;}
- if(currentRole==='passenger'){showPage('manage');setTimeout(()=>{$('passengerMessages')?.scrollIntoView({behavior:'smooth',block:'start'});},80);renderPassengerMessages(true);}
+ if(!auth.currentUser||currentRole==='guest')return;
+ showPage('manage');renderPassengerMessages(true);
+ setTimeout(()=>{$('passengerMessages')?.scrollIntoView({behavior:'smooth',block:'start'});},80);
 }
-function updateMessageNotice(count){const btn=$('messageNotice');if(!btn)return;btn.classList.toggle('hidden',(!staff&&currentRole!=='passenger')||count<=0);btn.classList.toggle('has-unread',count>0);$('messageUnreadCount').textContent=String(count);}
+function updateMessageNotice(){const btn=$('messageNotice');if(!btn)return;const count=myUnreadCount+staffUnreadCount;btn.classList.toggle('hidden',!auth.currentUser||count<=0);btn.classList.toggle('has-unread',count>0);$('messageUnreadCount').textContent=String(count);}
 function renderThread(items,viewer){return items.length?items.map(m=>{const mine=m.senderUid===viewer;return `<div class="message-bubble ${mine?'mine':''}"><small>${mine?'You':esc(m.senderLabel||(m.senderRole==='passenger'?'Passenger':'Staff'))} · ${messageDate(m.createdAt).toLocaleString()}</small><p>${esc(m.text)}</p></div>`}).join(''):'<p class="muted">No messages in this thread yet.</p>';}
 function setReplyArea(role,open){const area=$(role==='staff'?'staffReplyArea':'passengerReplyArea');if(area)area.classList.toggle('hidden',!open);}
 function sortSupportThreadDocs(docs){return [...docs].sort((a,b)=>messageDate(b.data().updatedAt)-messageDate(a.data().updatedAt));}
 function renderPassengerThreadList(docs){
  const list=$('passengerThreadList');if(!list)return;
  if(!docs.length){list.innerHTML='<p class="muted">You do not have any support threads yet. Staff will contact you here if they open one.</p>';return;}
- list.innerHTML=docs.map(d=>{const t=d.data();return `<button class="thread-chip ${d.id===activePassengerThreadId?'active':''} ${t.unreadForPassenger?'unread':''} ${t.status==='closed'?'closed':''}" onclick="selectPassengerThread('${d.id}')">${esc(t.subject||'Support request')} · ${t.status==='closed'?'Closed':'Open'}${t.unreadForPassenger?' · NEW':''}</button>`}).join('');
+ list.innerHTML=docs.map(d=>{const t=d.data();const mineAsCreator=!!auth.currentUser&&t.createdByUid===auth.currentUser.uid;const unread=mineAsCreator?!!t.unreadForStaff:!!t.unreadForPassenger;return `<button class="thread-chip ${d.id===activePassengerThreadId?'active':''} ${unread?'unread':''} ${t.status==='closed'?'closed':''}" onclick="selectPassengerThread('${d.id}')">${esc(t.subject||'Private message')} · ${t.status==='closed'?'Closed':'Open'}${unread?' · NEW':''}</button>`}).join('');
 }
 function watchPassengerThreads(){
  if(passengerThreadsUnsub){passengerThreadsUnsub();passengerThreadsUnsub=null;}
- if(!auth.currentUser||currentRole!=='passenger')return;
- const uid=auth.currentUser.uid;
- passengerThreadsUnsub=supportThreads.where('passengerUid','==',uid).onSnapshot(snap=>{
-  const docs=sortSupportThreadDocs(snap.docs);renderPassengerThreadList(docs);
-  const unread=docs.filter(d=>d.data().unreadForPassenger).length;updateMessageNotice(unread);
-  $('passengerMessageUnread').textContent=unread?`${unread} unread support thread${unread===1?'':'s'}`:'';
+ if(legacyThreadsUnsub){legacyThreadsUnsub();legacyThreadsUnsub=null;}
+ if(createdThreadsUnsub){createdThreadsUnsub();createdThreadsUnsub=null;}
+ if(!auth.currentUser||currentRole==='guest')return;
+ const uid=auth.currentUser.uid;let recipientDocs=[],legacyDocs=[],createdDocs=[];
+ const render=()=>{
+  const byId=new Map();[...legacyDocs,...recipientDocs,...createdDocs].forEach(d=>byId.set(d.id,d));
+  const docs=sortSupportThreadDocs([...byId.values()]);renderPassengerThreadList(docs);
+  myUnreadCount=docs.filter(d=>d.data().createdByUid!==uid&&d.data().unreadForPassenger===true).length;updateMessageNotice();
+  const unread=docs.filter(d=>d.data().createdByUid!==uid&&d.data().unreadForPassenger===true).length;$('passengerMessageUnread').textContent=unread?`${unread} unread message thread${unread===1?'':'s'}`:'';
   if(activePassengerThreadId&&!docs.some(d=>d.id===activePassengerThreadId)){activePassengerThreadId='';$('passengerThreadPanel').classList.add('hidden');}
- },err=>{$('passengerThreadList').textContent='Unable to load support threads: '+err.message;});
+ };
+ passengerThreadsUnsub=supportThreads.where('recipientUid','==',uid).onSnapshot(snap=>{recipientDocs=snap.docs;render();},err=>{$('passengerThreadList').textContent='Unable to load private messages: '+err.message;});
+ legacyThreadsUnsub=supportThreads.where('passengerUid','==',uid).onSnapshot(snap=>{legacyDocs=snap.docs;render();},err=>{$('passengerThreadList').textContent='Unable to load private messages: '+err.message;});
+ if(staff)createdThreadsUnsub=supportThreads.where('createdByUid','==',uid).onSnapshot(snap=>{createdDocs=snap.docs;render();},err=>{$('passengerThreadList').textContent='Unable to load your created threads: '+err.message;});
 }
 function renderPassengerMessages(forceOpen=false){
  const panel=$('passengerMessages');if(!panel)return;
- if(!auth.currentUser||currentRole!=='passenger'){panel.classList.add('hidden');updateMessageNotice(0);return;}
+ const accountArea=$('passengerAccountArea');if(accountArea)accountArea.classList.toggle('hidden',!!auth.currentUser&&currentRole!=='passenger');
+ if(!auth.currentUser||currentRole==='guest'){panel.classList.add('hidden');return;}
  panel.classList.remove('hidden');if(forceOpen){passengerThreadOpen=true;panel.scrollIntoView({behavior:'smooth',block:'start'});}
  if(!passengerThreadsUnsub)watchPassengerThreads();
 }
 async function selectPassengerThread(id){
- if(!auth.currentUser||currentRole!=='passenger'||!id)return;
+ if(!auth.currentUser||currentRole==='guest'||!id)return;
  activePassengerThreadId=id;passengerThreadOpen=true;
  if(passengerMessagesUnsub){passengerMessagesUnsub();passengerMessagesUnsub=null;}if(passengerThreadDocUnsub){passengerThreadDocUnsub();passengerThreadDocUnsub=null;}
  const ref=supportThreadRef(id);$('passengerThreadPanel').classList.remove('hidden');$('passengerMessageList').textContent='Loading messages...';
  try{
-  const snap=await ref.get();if(!snap.exists||snap.data().passengerUid!==auth.currentUser.uid){$('passengerMessageList').textContent='This support thread is unavailable.';return;}
-  const data=snap.data();$('passengerThreadTitle').textContent=data.subject||'Support request';$('passengerThreadStatus').textContent=data.status==='closed'?'Closed by staff · Replies are disabled':'Open · You can reply to staff';setReplyArea('passenger',data.status==='open');
-  if(data.unreadForPassenger)await ref.update({unreadForPassenger:false});
-  passengerThreadDocUnsub=ref.onSnapshot(doc=>{if(!doc.exists)return;const latest=doc.data();$('passengerThreadStatus').textContent=latest.status==='closed'?'Closed by staff · Replies are disabled':'Open · You can reply to staff';setReplyArea('passenger',latest.status==='open');});
+  const snap=await ref.get();if(!snap.exists||(((snap.data().recipientUid||snap.data().passengerUid)!==auth.currentUser.uid)&&snap.data().createdByUid!==auth.currentUser.uid)){$('passengerMessageList').textContent='This private message thread is unavailable.';return;}
+  const data=snap.data();$('passengerThreadTitle').textContent=data.subject||'Support request';$('passengerThreadStatus').textContent=data.status==='closed'?'Closed · Replies are disabled':'Open · You can reply here';setReplyArea('passenger',data.status==='open');
+  if(data.createdByUid===auth.currentUser.uid){if(data.unreadForStaff)await ref.update({unreadForStaff:false});}else if(data.unreadForPassenger)await ref.update({unreadForPassenger:false});
+  passengerThreadDocUnsub=ref.onSnapshot(doc=>{if(!doc.exists)return;const latest=doc.data();$('passengerThreadStatus').textContent=latest.status==='closed'?'Closed · Replies are disabled':'Open · You can reply here';setReplyArea('passenger',latest.status==='open');});
   passengerMessagesUnsub=ref.collection('messages').orderBy('createdAt','asc').onSnapshot(ms=>{$('passengerMessageList').innerHTML=renderThread(ms.docs.map(d=>d.data()),auth.currentUser.uid);});
-  renderPassengerThreadList(sortSupportThreadDocs((await supportThreads.where('passengerUid','==',auth.currentUser.uid).get()).docs));
+  const reads=[supportThreads.where('recipientUid','==',auth.currentUser.uid).get(),supportThreads.where('passengerUid','==',auth.currentUser.uid).get()];if(staff)reads.push(supportThreads.where('createdByUid','==',auth.currentUser.uid).get());const results=await Promise.all(reads);const merged=new Map();results.flatMap(x=>x.docs).forEach(d=>merged.set(d.id,d));renderPassengerThreadList(sortSupportThreadDocs([...merged.values()]));
  }catch(e){$('passengerMessageList').textContent='Unable to open this thread: '+e.message;}
 }
 async function sendThreadReply(role){
@@ -1650,10 +1660,11 @@ async function sendThreadReply(role){
  try{
   const snap=await ref.get();if(!snap.exists||snap.data().status!=='open'){alert('This support thread is closed. Replies are disabled.');setReplyArea(role,false);return;}
   const data=snap.data();const uid=auth.currentUser.uid;
-  if((isStaff&&!staff)||(!isStaff&&(data.passengerUid!==uid||currentRole!=='passenger'))){alert('You are not authorised to reply to this thread.');return;}
+  const isCreatorStaff=data.createdByUid===uid;
+  if((isStaff&&!staff)||(!isStaff&&((data.recipientUid||data.passengerUid)!==uid&&data.createdByUid!==uid))){alert('You are not authorised to reply to this thread.');return;}
   const now=firebase.firestore.FieldValue.serverTimestamp();const batch=db.batch();
-  batch.update(ref,{updatedAt:now,lastMessage:text.slice(0,120),unreadForStaff:!isStaff,unreadForPassenger:isStaff});
-  const msg=ref.collection('messages').doc();batch.set(msg,{text,senderUid:uid,senderRole:isStaff?currentRole:'passenger',senderLabel:isStaff?'Staff':currentUser,createdAt:now});
+  batch.update(ref,{updatedAt:now,lastMessage:text.slice(0,120),unreadForStaff:!isCreatorStaff,unreadForPassenger:isCreatorStaff});
+  const msg=ref.collection('messages').doc();batch.set(msg,{text,senderUid:uid,senderRole:currentRole,senderLabel:isStaff?'Staff':(currentUser||auth.currentUser.email||currentRole),createdAt:now});
   await batch.commit();input.value='';
  }catch(e){alert('Reply could not be sent. Check that the updated Firestore rules have been published. '+e.message);}
 }
@@ -1661,34 +1672,35 @@ $('sendPassengerMessage').onclick=()=>sendThreadReply('passenger');
 function renderStaffThreadList(docs){
  const list=$('staffConversationList');if(!list)return;
  if(!docs.length){list.innerHTML='<p class="muted">No support threads have been created yet.</p>';return;}
- list.innerHTML=docs.map(d=>{const t=d.data();return `<button class="thread-chip ${d.id===activeStaffThreadId?'active':''} ${t.unreadForStaff?'unread':''} ${t.status==='closed'?'closed':''}" onclick="selectStaffThread('${d.id}')">${esc(t.subject||'Support request')} · @${esc(t.passengerRoblox||'Passenger')} · ${t.status==='closed'?'Closed':'Open'}${t.unreadForStaff?' · NEW':''}</button>`}).join('');
+ list.innerHTML=docs.map(d=>{const t=d.data();return `<button class="thread-chip ${d.id===activeStaffThreadId?'active':''} ${t.unreadForStaff?'unread':''} ${t.status==='closed'?'closed':''}" onclick="selectStaffThread('${d.id}')">${esc(t.subject||'Support request')} · ${esc(t.recipientLabel||('@'+(t.passengerRoblox||'Account')))} · ${esc(t.recipientRole||'passenger')} · ${t.status==='closed'?'Closed':'Open'}${t.unreadForStaff?' · NEW':''}</button>`}).join('');
 }
 async function loadStaffPassengerAccounts(){
  if(!staff)return;
- const select=$('messageRecipient');$('staffPassengerLoadStatus').textContent='Loading passenger accounts...';
+ const select=$('messageRecipient');$('staffPassengerLoadStatus').textContent='Loading registered accounts...';
  try{
-  const snap=await db.collection('users').where('role','==','passenger').get();
-  select.innerHTML='<option value="">Select a passenger</option>'+snap.docs.map(d=>{const u=d.data();return `<option value="${d.id}">${esc(u.robloxUsername||u.email||d.id)} · ${esc(u.email||'')}</option>`}).join('');
-  $('staffPassengerLoadStatus').textContent=snap.empty?'No passenger accounts found.':'Select a passenger and enter a subject to create a thread.';
+  const snap=await db.collection('users').get();
+  const eligible=snap.docs.filter(d=>['passenger','employee','staff','admin'].includes(String(d.data().role||''))&&d.id!==auth.currentUser.uid);
+  select.innerHTML='<option value="">Select an account</option>'+eligible.map(d=>{const u=d.data();const role=String(u.role||'account');return `<option value="${d.id}">${esc(u.robloxUsername||u.email||d.id)} · ${esc(role)} · ${esc(u.email||'')}</option>`}).join('');
+  $('staffPassengerLoadStatus').textContent=eligible.length?'Select an account and enter a subject to create a private thread.':'No other registered accounts found.';
  }catch(e){$('staffPassengerLoadStatus').textContent='Could not load passenger accounts: '+e.message;}
 }
 async function createSupportThread(){
  if(!staff||!auth.currentUser){alert('Staff access is required to create a support thread.');return;}
- const passengerUid=$('messageRecipient').value,subject=$('newThreadSubject').value.trim();
- if(!passengerUid||!subject){alert('Select a passenger and enter a thread subject.');return;}
+ const recipientUid=$('messageRecipient').value,subject=$('newThreadSubject').value.trim();
+ if(!recipientUid||!subject){alert('Select an account and enter a thread subject.');return;}
  if(subject.length>100){alert('The subject must be 100 characters or fewer.');return;}
  try{
-  const userSnap=await db.collection('users').doc(passengerUid).get();if(!userSnap.exists||userSnap.data().role!=='passenger'){alert('The selected account is not a passenger account.');return;}
-  const u=userSnap.data(),ref=supportThreads.doc(),now=firebase.firestore.FieldValue.serverTimestamp();
-  await ref.set({passengerUid,passengerRoblox:u.robloxUsername||'',passengerDiscord:u.discordUsername||'',passengerEmail:u.email||'',subject,status:'open',createdByUid:auth.currentUser.uid,createdByEmail:auth.currentUser.email||'',createdAt:now,updatedAt:now,lastMessage:'Support thread opened by staff',unreadForStaff:false,unreadForPassenger:true});
-  $('newThreadSubject').value='';activeStaffThreadId=ref.id;await selectStaffThread(ref.id);alert('Support thread created. The passenger can now see it in My Profile.');
+  const userSnap=await db.collection('users').doc(recipientUid).get();if(!userSnap.exists||!['passenger','employee','staff','admin'].includes(String(userSnap.data().role||''))||recipientUid===auth.currentUser.uid){alert('The selected account is not an eligible recipient.');return;}
+  const u=userSnap.data(),recipientRole=String(u.role||''),recipientLabel=u.robloxUsername||u.email||recipientRole,ref=supportThreads.doc(),now=firebase.firestore.FieldValue.serverTimestamp();
+  await ref.set({recipientUid,recipientRole,recipientLabel,recipientEmail:u.email||'',passengerUid:recipientUid,passengerRoblox:u.robloxUsername||'',passengerDiscord:u.discordUsername||'',passengerEmail:u.email||'',subject,status:'open',createdByUid:auth.currentUser.uid,createdByEmail:auth.currentUser.email||'',createdAt:now,updatedAt:now,lastMessage:'Private message thread opened by staff',unreadForStaff:false,unreadForPassenger:true});
+  $('newThreadSubject').value='';activeStaffThreadId=ref.id;await selectStaffThread(ref.id);alert('Private message thread created. The selected account can now view it in My Profile.');
  }catch(e){alert('Could not create the support thread. Check the Firestore rules. '+e.message);}
 }
 $('createSupportThread').onclick=createSupportThread;
 function watchStaffThreads(){
  if(staffThreadsUnsub){staffThreadsUnsub();staffThreadsUnsub=null;}if(!staff||!auth.currentUser)return;
  staffThreadsUnsub=supportThreads.orderBy('updatedAt','desc').onSnapshot(snap=>{
-  const docs=snap.docs;renderStaffThreadList(docs);const unread=docs.filter(d=>d.data().unreadForStaff).length;updateMessageNotice(unread);
+  const docs=snap.docs;renderStaffThreadList(docs);staffUnreadCount=docs.filter(d=>d.data().unreadForStaff).length;updateMessageNotice();
   if(activeStaffThreadId&&!docs.some(d=>d.id===activeStaffThreadId)){activeStaffThreadId='';$('staffThreadPanel').classList.add('hidden');}
  },err=>{$('staffConversationList').textContent='Unable to load support threads: '+err.message;});
 }
@@ -1698,11 +1710,11 @@ async function selectStaffThread(id){
  const ref=supportThreadRef(id);$('staffThreadPanel').classList.remove('hidden');$('staffMessageHistory').textContent='Loading messages...';
  try{
   const snap=await ref.get();if(!snap.exists){$('staffMessageHistory').textContent='This thread no longer exists.';return;}
-  const data=snap.data();$('staffThreadTitle').textContent=`${data.subject||'Support request'} · @${data.passengerRoblox||'Passenger'}`;
-  $('staffThreadStatus').textContent=data.status==='closed'?'Closed · Replies disabled':`Open · Passenger ${data.passengerEmail||data.passengerUid}`;
+  const data=snap.data();$('staffThreadTitle').textContent=`${data.subject||'Support request'} · ${data.recipientLabel||('@'+(data.passengerRoblox||'Account'))}`;
+  $('staffThreadStatus').textContent=data.status==='closed'?'Closed · Replies disabled':`Open · ${data.recipientRole||'passenger'} · ${data.recipientEmail||data.passengerEmail||data.recipientUid||data.passengerUid}`;
   $('closeSupportThread').classList.toggle('hidden',data.status!=='open');setReplyArea('staff',data.status==='open');
   if(data.unreadForStaff)await ref.update({unreadForStaff:false});
-  staffThreadDocUnsub=ref.onSnapshot(doc=>{if(!doc.exists)return;const latest=doc.data();$('staffThreadStatus').textContent=latest.status==='closed'?'Closed · Replies disabled':`Open · Passenger ${latest.passengerEmail||latest.passengerUid}`;$('closeSupportThread').classList.toggle('hidden',latest.status!=='open');setReplyArea('staff',latest.status==='open');});
+  staffThreadDocUnsub=ref.onSnapshot(doc=>{if(!doc.exists)return;const latest=doc.data();$('staffThreadStatus').textContent=latest.status==='closed'?'Closed · Replies disabled':`Open · ${latest.recipientRole||'passenger'} · ${latest.recipientEmail||latest.passengerEmail||latest.recipientUid||latest.passengerUid}`;$('closeSupportThread').classList.toggle('hidden',latest.status!=='open');setReplyArea('staff',latest.status==='open');});
   staffMessagesUnsub=ref.collection('messages').orderBy('createdAt','asc').onSnapshot(ms=>{$('staffMessageHistory').innerHTML=renderThread(ms.docs.map(d=>d.data()),auth.currentUser.uid);});
  }catch(e){$('staffMessageHistory').textContent='Unable to open thread: '+e.message;}
 }
