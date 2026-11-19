@@ -1222,7 +1222,7 @@ function updateBookingAccountStatus(){
  el.innerHTML=`<b>Your account is being prepared for booking.</b> Please wait a moment and try again.`;
 }
 function recordTransaction(user,amount,reason,ref='',actor='System',uid=auth.currentUser?.uid){transactions.push({uid:uid||'',user,amount,reason,ref,actor,date:new Date().toISOString()});}
-function careerApply(role){alert('Applications for '+role+' are not available yet.');}
+function careerApply(role){if(role==='Operations Management'){window.open('https://forms.cloud.microsoft/r/NfFPKP0aHb','_blank','noopener,noreferrer');return;}alert('Applications for '+role+' are not available yet.');}
 function showPage(p){
  updateBookingAccountStatus();
  ['book','manage','myFlights','portal','staff','crew','careers'].forEach(x=>$(x+'Page').classList.toggle('hidden',x!==p));
