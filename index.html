@@ -1187,9 +1187,16 @@ function farePrice(){return ({Basic:0,Regular:30,Plus:50,'Flexi Plus':80}[fare]|
 function userBalance(){return currentUser && accounts[currentUser] ? (Number(accounts[currentUser].balance)||0) : 0}
 function updateBookingAccountStatus(){
  const el=$('bookingAccountStatus'); if(!el)return;
- el.innerHTML=currentUser
-  ? `<b>Signed in as ${esc(currentUser)}</b> · Virtual balance: <b>£${userBalance()}</b>`
-  : `You are not signed in. Open <b>My Profile</b> to sign in or create your passenger account before booking.`;
+ if(!auth.currentUser){
+  el.innerHTML=`You are not signed in. Open <b>My Profile</b> to sign in or create your passenger account before booking.`;
+  return;
+ }
+ if(currentRole==='passenger' && currentUser){
+  el.innerHTML=`<b>Signed in as ${esc(currentUser)}</b> · Virtual balance: <b>£${userBalance()}</b>`;
+  return;
+ }
+ const roleLabel=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':'Employee';
+ el.innerHTML=`<b>Signed in as ${esc(auth.currentUser.email||roleLabel)} · ${roleLabel}</b>. Flight bookings and virtual balance are available to passenger accounts.`;
 }
 function recordTransaction(user,amount,reason,ref='',actor='System'){transactions.push({user,amount,reason,ref,actor,date:new Date().toISOString()});}
 function showPage(p){
@@ -1387,7 +1394,12 @@ function renderMyBookings(){
 }
 function renderMyFlights(){
  const box=$('myFlightsList');if(!box)return;
- if(!currentUser){box.innerHTML='<p class="muted">Sign in through My Profile to view your flights.</p>';return;}
+ if(!auth.currentUser){box.innerHTML='<p class="muted">Sign in through My Profile to view your flights.</p>';return;}
+ if(currentRole!=='passenger'||!currentUser){
+  const roleLabel=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':'Employee';
+  box.innerHTML=`<p class="muted">You are signed in as ${esc(auth.currentUser.email||roleLabel)} (${roleLabel}). My Flights displays bookings belonging to passenger accounts; this account does not have a passenger booking profile.</p>`;
+  return;
+ }
  const mine=bookings.filter(b=>b.user===currentUser&&!b.cancelled);
  box.innerHTML=mine.length?mine.map(b=>{const f=flights.find(x=>x.id===b.flightId)||{};return `<div class="flight"><div><small>${esc(b.ref)} · ${esc(b.flightNo)}</small><strong>${esc(f.from||'?')} → ${esc(f.to||'?')}</strong></div><div><small>${esc(f.date||'')}</small><b>${esc(f.dep||'')} UTC</b></div><div><small>Operated by</small><b>${esc(f.operator||'Ryanair')}</b></div><button class="primary" onclick="openPortal('${esc(b.ref)}')">Open flight portal</button></div>`}).join(''):'<p class="muted">You have no booked flights.</p>';
 }
