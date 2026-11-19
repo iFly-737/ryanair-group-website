@@ -1184,21 +1184,22 @@ Object.keys(accounts).forEach(k=>{if(accounts[k] && (accounts[k].balance===undef
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function save(){localStorage.setItem('rg_flights',JSON.stringify(flights));localStorage.setItem('rg_bookings',JSON.stringify(bookings));localStorage.setItem('rg_accounts',JSON.stringify(accounts));localStorage.setItem('rg_transactions',JSON.stringify(transactions))}
 function farePrice(){return ({Basic:0,Regular:30,Plus:50,'Flexi Plus':80}[fare]||0)}
-function userBalance(){return currentUser && accounts[currentUser] ? (Number(accounts[currentUser].balance)||0) : 0}
+function userBalance(){const uid=auth.currentUser?.uid;return uid && accounts[uid] ? (Number(accounts[uid].balance)||0) : 0}
 function updateBookingAccountStatus(){
  const el=$('bookingAccountStatus'); if(!el)return;
  if(!auth.currentUser){
   el.innerHTML=`You are not signed in. Open <b>My Profile</b> to sign in or create your passenger account before booking.`;
   return;
  }
- if(currentUser && accounts[currentUser]){
+ const uid=auth.currentUser?.uid;
+ if(uid && accounts[uid]){
   const roleLabel=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':currentRole==='employee'?'Employee':'Passenger';
   el.innerHTML=`<b>Signed in as ${esc(currentUser)} · ${roleLabel}</b> · Virtual balance: <b>£${userBalance()}</b>`;
   return;
  }
  el.innerHTML=`<b>Your account is being prepared for booking.</b> Please wait a moment and try again.`;
 }
-function recordTransaction(user,amount,reason,ref='',actor='System'){transactions.push({user,amount,reason,ref,actor,date:new Date().toISOString()});}
+function recordTransaction(user,amount,reason,ref='',actor='System',uid=auth.currentUser?.uid){transactions.push({uid:uid||'',user,amount,reason,ref,actor,date:new Date().toISOString()});}
 function showPage(p){
  updateBookingAccountStatus();
  ['book','manage','myFlights','portal','staff','crew','careers'].forEach(x=>$(x+'Page').classList.toggle('hidden',x!==p));
@@ -1226,7 +1227,7 @@ function renderFlights(){
 function selectFlight(id){selectedFlight=flights.find(f=>f.id===id);renderFlights();updateBookingPriceBar()}
 ['filterFrom','filterTo','filterDate'].forEach(id=>$(id).onchange=renderFlights);
 $('toDetails').onclick=()=>{
- if(!auth.currentUser || !currentUser || !accounts[currentUser]){alert('Please sign in to your account in My Profile before booking.');showPage('manage');return;}
+ if(!auth.currentUser || !currentUser || !accounts[auth.currentUser.uid]){alert('Please sign in to your account in My Profile before booking.');showPage('manage');return;}
  if(!selectedFlight)return;
  pax=Array.from({length:+$('paxCount').value},()=>({roblox:'',discord:''}));
  goStep(2);
@@ -1280,33 +1281,34 @@ function renderReview(){
  $('review').innerHTML=`<div class="notice"><b>${esc(selectedFlight.no)}</b> · ${esc(selectedFlight.from)} → ${esc(selectedFlight.to)}<br>${selectedFlight.date} · ${selectedFlight.dep} UTC · Gate ${esc(selectedFlight.gate)}</div><p><b>Fare:</b> ${esc(fare)} — £${farePrice()} per passenger</p><p><b>Passengers:</b><br>${pax.map((p,i)=>`@${esc(p.roblox)} · Discord: ${esc(p.discord)} · Seat ${seats[i]||'Not selected'}`).join('<br>')}</p><p><b>Seat charges:</b> £${seatTotal}</p><h2>Total: £${total}</h2><p><b>Virtual balance before payment:</b> £${userBalance()}</p><p class="muted">Your balance is only deducted after you accept the simulated payment.</p>`;
 }
 $('confirmBooking').onclick=async()=>{
- if(!currentUser || !accounts[currentUser]){alert('Please sign in before paying. Your booking cannot be charged to a guest account.');showPage('manage');return;}
+ if(!auth.currentUser || !currentUser || !accounts[auth.currentUser.uid]){alert('Please sign in before paying. Your booking cannot be charged to a guest account.');showPage('manage');return;}
  const user=currentUser;
+ const accountUid=auth.currentUser.uid;
  const names=pax.map(p=>String(p.roblox||'').trim().toLowerCase());
  if(names.some(n=>!n)||new Set(names).size!==names.length){alert('Passenger Roblox usernames must be present and unique.');goStep(3);return;}
  const existingNames=new Set(bookings.filter(b=>b.flightId===selectedFlight.id).flatMap(b=>(b.passengers||[]).map(p=>String(p.roblox||'').trim().toLowerCase())));
  if(names.some(n=>existingNames.has(n))){alert('One or more Roblox usernames are already booked on this flight. Please check the passenger details.');goStep(3);return;}
  const seatCost=seats.reduce((sum,s)=>{let r=+s.match(/\d+/)[0];return sum+(r===1||r===9?15:r>=2&&r<=5?10:0)},0);
  const total=farePrice()*pax.length+seatCost;
- const balance=Number(accounts[user].balance)||0;
+ const balance=Number(accounts[accountUid].balance)||0;
  if(balance<total){alert(`Insufficient virtual balance. You need £${total}, but have £${balance}.`);return;}
  if(!confirm(`Accept simulated Apple Pay?\n\nTotal: £${total} virtual currency\nBalance after payment: £${balance-total}\n\nNo real money will be taken.`))return;
- accounts[user].balance=balance-total;
+ accounts[accountUid].balance=balance-total;
  const ref='RG'+Math.random().toString(36).slice(2,8).toUpperCase();
  const passengerRefs=pax.map(()=> 'P'+Math.random().toString(36).slice(2,8).toUpperCase());
  const booking={ref,passengerRefs,flightId:selectedFlight.id,flightNo:selectedFlight.no,user,ownerUid:auth.currentUser.uid,passengers:pax,seats,fare,amountPaid:total,refunded:false,rewardedPassengerIndexes:[],cancelled:false};
  bookings.push(booking);
- recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,currentRole);
+ recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,currentRole,accountUid);
  $('confirmBooking').disabled=true;
  try{
   // Store the booking under its reference. Currency remains demo-only and is not securely charged in the cloud yet.
   await db.collection('bookings').doc(ref).set({...booking,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   save();
   for(let i=1;i<=5;i++)$('bookingStep'+i).classList.add('hidden');$('bookingDone').classList.remove('hidden');$('bookingPriceBar').classList.add('hidden');
-  $('bookingDone').innerHTML=`<div class="notice success"><h2>Booking confirmed</h2>Group reference: <b>${ref}</b><br>${passengerRefs.map((r,i)=>`Passenger ${i+1}: <b>${r}</b>`).join('<br>')}<br><br>Paid: £${total} virtual currency<br>Remaining balance: £${accounts[user].balance}<br><br>Booking saved to your online account.</div><button class="primary" onclick="showPage('myFlights');renderMyFlights()">View my booked flights</button> <button class="secondary" onclick="resetBooking();showPage('book')">Return to available flights</button>`;
+  $('bookingDone').innerHTML=`<div class="notice success"><h2>Booking confirmed</h2>Group reference: <b>${ref}</b><br>${passengerRefs.map((r,i)=>`Passenger ${i+1}: <b>${r}</b>`).join('<br>')}<br><br>Paid: £${total} virtual currency<br>Remaining balance: £${accounts[accountUid].balance}<br><br>Booking saved to your online account.</div><button class="primary" onclick="showPage('myFlights');renderMyFlights()">View my booked flights</button> <button class="secondary" onclick="resetBooking();showPage('book')">Return to available flights</button>`;
  }catch(error){
   bookings=bookings.filter(b=>b.ref!==ref);
-  accounts[user].balance=balance;
+  accounts[accountUid].balance=balance;
   transactions=transactions.filter(t=>t.ref!==ref);
   save();
   alert('The booking could not be saved online, so it was not confirmed. Please try again. Details: '+(error.message||error));
@@ -1318,7 +1320,8 @@ async function loadPassengerProfile(user,profile){
  const username=String(profile.robloxUsername||profile.email||user.email||user.uid).trim();
  window.currentDiscordUsername=String(profile.discordUsername||'').trim();
  currentUser=username;
- if(!accounts[currentUser]) accounts[currentUser]={balance:Number.isFinite(Number(profile.balance))?Number(profile.balance):100};
+ // Local demo balances are isolated by Firebase UID, never by a display username.
+ if(!accounts[user.uid]) accounts[user.uid]={balance:Number.isFinite(Number(profile.balance))?Number(profile.balance):100};
  // Load bookings for this Firebase account, regardless of its role.
  const cloudBookings=await db.collection('bookings').where('ownerUid','==',user.uid).get();
  const remote=cloudBookings.docs.map(doc=>doc.data()).filter(b=>b.cancelled!==true);
@@ -1355,7 +1358,7 @@ $('createAccountBtn').onclick=async()=>{
    createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
   currentUser=robloxUsername;
-  accounts[currentUser]={balance:100};
+  accounts[credential.user.uid]={balance:100};
   bookings.filter(b=>b.user==='guest').forEach(b=>b.user=currentUser);
   save();updateBookingAccountStatus();renderMyBookings();
   $('authStatus').textContent='Passenger account created and saved to Firebase.';
@@ -1363,6 +1366,8 @@ $('createAccountBtn').onclick=async()=>{
 };
 auth.onAuthStateChanged(async user=>{
  if(!user){currentUser='';window.currentDiscordUsername='';staff=false;employee=false;currentRole='guest';passengerThreadOpen=false;stopSupportListeners();const accountArea=$('passengerAccountArea');if(accountArea)accountArea.classList.remove('hidden');const authForm=$('passengerAuthForm');if(authForm)authForm.classList.remove('hidden');const myBookings=$('myBookings');if(myBookings)myBookings.innerHTML='';const inbox=$('passengerMessages');if(inbox)inbox.classList.add('hidden');$('authStatus').textContent='You are signed out. Sign in to access your account and private messages.';updateBookingAccountStatus();updateMessageNotice();return;}
+ // Clear the previous account's displayed profile while the new UID is being checked.
+ currentUser='';window.currentDiscordUsername='';const previousProfile=$('myBookings');if(previousProfile)previousProfile.innerHTML='';updateBookingAccountStatus();
  try{
   const roleDoc=await db.collection('users').doc(user.uid).get();
   if(!roleDoc.exists){await auth.signOut();throw new Error('No account permissions were found. Contact an administrator.');}
@@ -1378,7 +1383,7 @@ auth.onAuthStateChanged(async user=>{
 function renderMyBookings(){
  const box=$('myBookings');if(!box)return;
  const label=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':currentRole==='employee'?'Employee':'Passenger';
- const userTransactions=transactions.filter(t=>t.user===currentUser);
+ const userTransactions=transactions.filter(t=>t.uid===auth.currentUser?.uid);
  box.innerHTML=`<div class="portal-card"><h2>Account details</h2><p><b>Signed in:</b> ${esc(auth.currentUser?.email||currentUser)}</p><p><b>Account role:</b> ${label}</p><h3>Virtual bank</h3><div class="price">£${userBalance()}</div><p class="muted">Fictional website currency only. This is not real money.</p><h3>Transaction history</h3>${userTransactions.map(t=>`<p>${esc(t.reason)} · ${t.amount<0?'-':'+'}£${Math.abs(t.amount)} <small>${esc(t.date.slice(0,10))}</small></p>`).join('')||'<p class="muted">No transactions yet.</p>'}<button class="secondary" id="signOut">Sign out</button></div>`;
  renderPassengerMessages();renderMyFlights();
  const signOut=$('signOut');if(signOut)signOut.onclick=async()=>{await auth.signOut();currentUser='';$('myBookings').innerHTML='';renderPassengerMessages();updateBookingAccountStatus();$('authStatus').textContent='You are signed out.'};
@@ -1472,9 +1477,12 @@ async function cancelBooking(ref){
  if(booking.refunded){alert('This booking has already been refunded.');return;}
  if(!confirm(`Cancel booking ${ref}?\n\nOnly 40% of the virtual currency actually spent will be returned.\nAmount paid: £${paid}.\nRefund: £${refund}.\nThe remaining 60% will not be refunded.`))return;
  if(refund>0){
-  if(!accounts[booking.user])accounts[booking.user]={balance:100};
-  accounts[booking.user].balance=(Number(accounts[booking.user].balance)||0)+refund;
-  recordTransaction(booking.user,refund,`40% cancellation refund for ${booking.flightNo}`,ref,'System');
+  const accountUid=booking.ownerUid;
+  if(accountUid){
+   if(!accounts[accountUid])accounts[accountUid]={balance:100};
+   accounts[accountUid].balance=(Number(accounts[accountUid].balance)||0)+refund;
+   recordTransaction(booking.user,refund,`40% cancellation refund for ${booking.flightNo}`,ref,'System',accountUid);
+  }
  }
  try{
   await db.collection('bookings').doc(ref).update({cancelled:true,cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
@@ -1482,7 +1490,7 @@ async function cancelBooking(ref){
   bookings=bookings.filter(x=>x.ref!==ref);
   save();showPage('manage');renderMyBookings();alert(`Booking cancelled and recorded online. £${refund} virtual currency refunded locally.`);
  }catch(error){
-  if(refund>0){accounts[booking.user].balance=(Number(accounts[booking.user].balance)||0)-refund;transactions=transactions.filter(t=>!(t.ref===ref&&t.reason.includes('cancellation refund')));}
+  if(refund>0&&booking.ownerUid){accounts[booking.ownerUid].balance=(Number(accounts[booking.ownerUid].balance)||0)-refund;transactions=transactions.filter(t=>!(t.ref===ref&&t.reason.includes('cancellation refund')));}
   alert('The cancellation could not be recorded online. Your booking has not been cancelled. Details: '+(error.message||error));
   save();
  }
@@ -1589,10 +1597,12 @@ function awardAttendanceReward(ref,index){
  if(b.rewardedPassengerIndexes.includes(index)){alert('This passenger has already received the reward for this flight.');return;}
  const passenger=b.passengers[index];if(!passenger)return;
  if(!confirm(`Confirm that @${passenger.roblox||'Unknown'} was physically present and their Roblox username was checked at the gate for ${b.flightNo}?\n\nAward: £${reward} virtual currency.`))return;
- if(!accounts[b.user])accounts[b.user]={balance:100};
- accounts[b.user].balance=(Number(accounts[b.user].balance)||0)+reward;
+ const accountUid=b.ownerUid;
+ if(!accountUid){alert('This booking is missing its account owner ID, so the reward cannot be assigned safely.');return;}
+ if(!accounts[accountUid])accounts[accountUid]={balance:100};
+ accounts[accountUid].balance=(Number(accounts[accountUid].balance)||0)+reward;
  b.rewardedPassengerIndexes.push(index);
- recordTransaction(b.user,reward,`Staff attendance reward for ${b.flightNo}`,b.ref,'Staff');save();renderAdmin();renderMyBookings();
+ recordTransaction(b.user,reward,`Staff attendance reward for ${b.flightNo}`,b.ref,'Staff',accountUid);save();renderAdmin();renderMyBookings();
  alert(`£${reward} virtual currency awarded to @${passenger.roblox||'Unknown'}.`);
 }
 
