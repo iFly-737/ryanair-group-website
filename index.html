@@ -977,7 +977,8 @@ nav button.staff-nav-tab{margin-left:18px !important}
 <div class="hero"><h1>My profile</h1><p>Manage your account and view your private message threads.</p></div>
 <div class="panel">
 <div id="passengerAccountArea">
-<h2>Passenger account</h2>
+<div id="passengerAuthForm">
+<h2>Account sign in</h2>
 <div class="grid">
 <div class="field"><label>Email address</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
 <div class="field"><label>Password</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="At least 6 characters"></div>
@@ -987,7 +988,8 @@ nav button.staff-nav-tab{margin-left:18px !important}
 <div class="field"><label>Discord username (for new accounts)</label><input id="loginDiscord" autocomplete="off" placeholder="Your Discord username"></div>
 </div>
 <div class="actions"><button class="primary" id="loginBtn">Sign in</button><button class="secondary" id="createAccountBtn">Create passenger account</button></div>
-<div class="notice">Email and password are handled by Firebase Authentication. Your Roblox and Discord usernames are stored in your private Firestore profile. Bookings and private messages are stored in Firestore. Virtual-currency transactions remain browser-local demo data.</div>
+<div class="notice">Sign in with your registered email and password. Passenger accounts can also be created here. Staff and employee accounts can sign in here using their existing account credentials.</div>
+</div>
 <div id="authStatus" class="muted" aria-live="polite"></div>
 <div id="myBookings"></div>
 </div>
@@ -1331,7 +1333,7 @@ $('loginBtn').onclick=async()=>{
  const email=$('loginEmail').value.trim(),password=$('loginPass').value;
  if(!email||!password){alert('Enter your email address and password.');return;}
  $('authStatus').textContent='Signing in...';
- try{const credential=await auth.signInWithEmailAndPassword(email,password);await loadPassengerProfile(credential.user);}
+ try{await auth.signInWithEmailAndPassword(email,password);}
  catch(error){$('authStatus').textContent='';alert(error.message||'Unable to sign in.');}
 };
 $('createAccountBtn').onclick=async()=>{
@@ -1358,24 +1360,30 @@ $('createAccountBtn').onclick=async()=>{
  }catch(error){$('authStatus').textContent='';alert(error.message||'Unable to create account.');}
 };
 auth.onAuthStateChanged(async user=>{
- if(!user){currentUser='';window.currentDiscordUsername='';staff=false;employee=false;currentRole='guest';passengerThreadOpen=false;stopSupportListeners();const accountArea=$('passengerAccountArea');if(accountArea)accountArea.classList.remove('hidden');const inbox=$('passengerMessages');if(inbox)inbox.classList.add('hidden');updateBookingAccountStatus();updateMessageNotice();return;}
+ if(!user){currentUser='';window.currentDiscordUsername='';staff=false;employee=false;currentRole='guest';passengerThreadOpen=false;stopSupportListeners();const accountArea=$('passengerAccountArea');if(accountArea)accountArea.classList.remove('hidden');const authForm=$('passengerAuthForm');if(authForm)authForm.classList.remove('hidden');const myBookings=$('myBookings');if(myBookings)myBookings.innerHTML='';const inbox=$('passengerMessages');if(inbox)inbox.classList.add('hidden');$('authStatus').textContent='You are signed out. Sign in to access your account and private messages.';updateBookingAccountStatus();updateMessageNotice();return;}
  try{
   const roleDoc=await db.collection('users').doc(user.uid).get();
   if(!roleDoc.exists){await auth.signOut();throw new Error('No account permissions were found. Contact an administrator.');}
   currentRole=String(roleDoc.data().role||'passenger');
   staff=currentRole==='staff'||currentRole==='admin';
   employee=currentRole==='employee';
-  if(staff){currentUser='';$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');renderAdmin();populatePortalSelect();renderPassengerMessages();$('crewAuthStatus').textContent='';return;}
-  if(employee){currentUser='';$('crewLogin').classList.add('hidden');$('crewTools').classList.remove('hidden');$('crewAuthStatus').textContent='Signed in with employee access.';renderPassengerMessages();return;}
+  if(staff){currentUser='';$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');$('passengerAuthForm').classList.add('hidden');renderAdmin();populatePortalSelect();renderMyBookings();$('authStatus').textContent='Signed in as '+(user.email||'staff account')+' · '+currentRole+'.';$('crewAuthStatus').textContent='';renderPassengerMessages();return;}
+  if(employee){currentUser='';$('crewLogin').classList.add('hidden');$('crewTools').classList.remove('hidden');$('passengerAuthForm').classList.add('hidden');$('crewAuthStatus').textContent='Signed in with employee access.';renderMyBookings();$('authStatus').textContent='Signed in as '+(user.email||'employee account')+' · employee.';renderPassengerMessages();return;}
   if(currentRole!=='passenger'){await auth.signOut();throw new Error('This account role is not authorised for the passenger portal.');}
   await loadPassengerProfile(user);
  }catch(error){$('authStatus').textContent='';$('crewAuthStatus').textContent=error.message||'Unable to verify account role.';console.error(error);}
 });
 function renderMyBookings(){
- const userTransactions=transactions.filter(t=>t.user===currentUser);
- $('myBookings').innerHTML=`<h2>${esc(currentUser)}'s profile</h2><div class="portal-card"><h3>Virtual bank</h3><div class="price">£${userBalance()}</div><p class="muted">Fictional website currency only. This is not real money.</p><h3>Transaction history</h3>${userTransactions.map(t=>`<p>${esc(t.reason)} · ${t.amount<0?'-':'+'}£${Math.abs(t.amount)} <small>${esc(t.date.slice(0,10))}</small></p>`).join('')||'<p class="muted">No transactions yet.</p>'}</div><button class="secondary" id="signOut">Sign out</button>`;
+ const box=$('myBookings');if(!box)return;
+ if(currentRole==='staff'||currentRole==='admin'||currentRole==='employee'){
+  const label=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':'Employee';
+  box.innerHTML=`<div class="portal-card"><h2>Account details</h2><p><b>Signed in:</b> ${esc(auth.currentUser?.email||'')}</p><p><b>Account role:</b> ${label}</p><button class="secondary" id="signOut">Sign out</button></div>`;
+ }else{
+  const userTransactions=transactions.filter(t=>t.user===currentUser);
+  box.innerHTML=`<h2>${esc(currentUser)}'s profile</h2><div class="portal-card"><h3>Virtual bank</h3><div class="price">£${userBalance()}</div><p class="muted">Fictional website currency only. This is not real money.</p><h3>Transaction history</h3>${userTransactions.map(t=>`<p>${esc(t.reason)} · ${t.amount<0?'-':'+'}£${Math.abs(t.amount)} <small>${esc(t.date.slice(0,10))}</small></p>`).join('')||'<p class="muted">No transactions yet.</p>'}</div><button class="secondary" id="signOut">Sign out</button>`;
+ }
  renderPassengerMessages();renderMyFlights();
- $('signOut').onclick=async()=>{await auth.signOut();currentUser='';$('myBookings').innerHTML='Signed out.';renderPassengerMessages();updateBookingAccountStatus();$('authStatus').textContent='You are signed out.'};
+ const signOut=$('signOut');if(signOut)signOut.onclick=async()=>{await auth.signOut();currentUser='';$('myBookings').innerHTML='';renderPassengerMessages();updateBookingAccountStatus();$('authStatus').textContent='You are signed out.'};
 }
 function renderMyFlights(){
  const box=$('myFlightsList');if(!box)return;
@@ -1632,7 +1640,8 @@ function watchPassengerThreads(){
 }
 function renderPassengerMessages(forceOpen=false){
  const panel=$('passengerMessages');if(!panel)return;
- const accountArea=$('passengerAccountArea');if(accountArea)accountArea.classList.toggle('hidden',!!auth.currentUser&&currentRole!=='passenger');
+ const accountArea=$('passengerAccountArea');if(accountArea)accountArea.classList.remove('hidden');
+ const authForm=$('passengerAuthForm');if(authForm)authForm.classList.toggle('hidden',!!auth.currentUser);
  if(!auth.currentUser||currentRole==='guest'){panel.classList.add('hidden');return;}
  panel.classList.remove('hidden');if(forceOpen){passengerThreadOpen=true;panel.scrollIntoView({behavior:'smooth',block:'start'});}
  if(!passengerThreadsUnsub)watchPassengerThreads();
