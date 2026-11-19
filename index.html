@@ -1191,12 +1191,12 @@ function updateBookingAccountStatus(){
   el.innerHTML=`You are not signed in. Open <b>My Profile</b> to sign in or create your passenger account before booking.`;
   return;
  }
- if(currentRole==='passenger' && currentUser){
-  el.innerHTML=`<b>Signed in as ${esc(currentUser)}</b> · Virtual balance: <b>£${userBalance()}</b>`;
+ if(currentUser && accounts[currentUser]){
+  const roleLabel=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':currentRole==='employee'?'Employee':'Passenger';
+  el.innerHTML=`<b>Signed in as ${esc(currentUser)} · ${roleLabel}</b> · Virtual balance: <b>£${userBalance()}</b>`;
   return;
  }
- const roleLabel=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':'Employee';
- el.innerHTML=`<b>Signed in as ${esc(auth.currentUser.email||roleLabel)} · ${roleLabel}</b>. Flight bookings and virtual balance are available to passenger accounts.`;
+ el.innerHTML=`<b>Your account is being prepared for booking.</b> Please wait a moment and try again.`;
 }
 function recordTransaction(user,amount,reason,ref='',actor='System'){transactions.push({user,amount,reason,ref,actor,date:new Date().toISOString()});}
 function showPage(p){
@@ -1226,7 +1226,7 @@ function renderFlights(){
 function selectFlight(id){selectedFlight=flights.find(f=>f.id===id);renderFlights();updateBookingPriceBar()}
 ['filterFrom','filterTo','filterDate'].forEach(id=>$(id).onchange=renderFlights);
 $('toDetails').onclick=()=>{
- if(!currentUser || !accounts[currentUser]){alert('Please sign in or create your passenger account in My Profile before booking.');showPage('manage');return;}
+ if(!auth.currentUser || !currentUser || !accounts[currentUser]){alert('Please sign in to your account in My Profile before booking.');showPage('manage');return;}
  if(!selectedFlight)return;
  pax=Array.from({length:+$('paxCount').value},()=>({roblox:'',discord:''}));
  goStep(2);
@@ -1296,7 +1296,7 @@ $('confirmBooking').onclick=async()=>{
  const passengerRefs=pax.map(()=> 'P'+Math.random().toString(36).slice(2,8).toUpperCase());
  const booking={ref,passengerRefs,flightId:selectedFlight.id,flightNo:selectedFlight.no,user,ownerUid:auth.currentUser.uid,passengers:pax,seats,fare,amountPaid:total,refunded:false,rewardedPassengerIndexes:[],cancelled:false};
  bookings.push(booking);
- recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,'Passenger');
+ recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,currentRole);
  $('confirmBooking').disabled=true;
  try{
   // Store the booking under its reference. Currency remains demo-only and is not securely charged in the cloud yet.
@@ -1313,28 +1313,23 @@ $('confirmBooking').onclick=async()=>{
  }finally{$('confirmBooking').disabled=false;}
 };
 function resetBooking(){selectedFlight=null;pax=[];fare='';seats=[];$('bookingDone').classList.add('hidden');$('bookingPriceBar').classList.add('hidden');goStep(1);renderFlights()}
-async function loadPassengerProfile(user){
- const snap=await db.collection('users').doc(user.uid).get();
- if(!snap.exists){
-  await auth.signOut();
-  throw new Error('Your passenger profile was not found. Please create an account again or contact the site administrator.');
- }
- const profile=snap.data();
- const username=String(profile.robloxUsername||'').trim();window.currentDiscordUsername=String(profile.discordUsername||'').trim();
- if(!username) throw new Error('Your profile is missing its Roblox username.');
+async function loadPassengerProfile(user,profile){
+ profile=profile||((await db.collection('users').doc(user.uid).get()).data()||{});
+ const username=String(profile.robloxUsername||profile.email||user.email||user.uid).trim();
+ window.currentDiscordUsername=String(profile.discordUsername||'').trim();
  currentUser=username;
- if(!accounts[currentUser]) accounts[currentUser]={balance:100};
- // Retrieve this passenger's active bookings from Firestore on every sign-in/session restore.
+ if(!accounts[currentUser]) accounts[currentUser]={balance:Number.isFinite(Number(profile.balance))?Number(profile.balance):100};
+ // Load bookings for this Firebase account, regardless of its role.
  const cloudBookings=await db.collection('bookings').where('ownerUid','==',user.uid).get();
  const remote=cloudBookings.docs.map(doc=>doc.data()).filter(b=>b.cancelled!==true);
  const remoteRefs=new Set(remote.map(b=>b.ref));
  bookings=bookings.filter(b=>b.ownerUid!==user.uid || remoteRefs.has(b.ref));
  remote.forEach(b=>{const i=bookings.findIndex(x=>x.ref===b.ref);if(i>=0)bookings[i]=b;else bookings.push(b);});
- bookings.filter(b=>b.user==='guest').forEach(b=>b.user=currentUser);
  save();
  updateBookingAccountStatus();
  renderMyBookings();
- $('authStatus').textContent='Signed in as '+username+' ('+user.email+'). Online bookings loaded.';renderPassengerMessages();
+ $('authStatus').textContent='Signed in as '+username+' ('+user.email+'). Online bookings loaded.';
+ renderPassengerMessages();
 }
 $('loginBtn').onclick=async()=>{
  const email=$('loginEmail').value.trim(),password=$('loginPass').value;
@@ -1372,35 +1367,27 @@ auth.onAuthStateChanged(async user=>{
   const roleDoc=await db.collection('users').doc(user.uid).get();
   if(!roleDoc.exists){await auth.signOut();throw new Error('No account permissions were found. Contact an administrator.');}
   currentRole=String(roleDoc.data().role||'passenger');
+  if(!['passenger','employee','staff','admin'].includes(currentRole)){await auth.signOut();throw new Error('This account role is not recognised. Contact an administrator.');}
   staff=currentRole==='staff'||currentRole==='admin';
   employee=currentRole==='employee';
-  if(staff){currentUser='';$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');$('passengerAuthForm').classList.add('hidden');renderAdmin();populatePortalSelect();renderMyBookings();$('authStatus').textContent='Signed in as '+(user.email||'staff account')+' · '+currentRole+'.';$('crewAuthStatus').textContent='';renderPassengerMessages();return;}
-  if(employee){currentUser='';$('crewLogin').classList.add('hidden');$('crewTools').classList.remove('hidden');$('passengerAuthForm').classList.add('hidden');$('crewAuthStatus').textContent='Signed in with employee access.';renderMyBookings();$('authStatus').textContent='Signed in as '+(user.email||'employee account')+' · employee.';renderPassengerMessages();return;}
-  if(currentRole!=='passenger'){await auth.signOut();throw new Error('This account role is not authorised for the passenger portal.');}
-  await loadPassengerProfile(user);
+  if(staff){$('staffLogin').classList.add('hidden');$('staffTools').classList.remove('hidden');$('passengerAuthForm').classList.add('hidden');renderAdmin();populatePortalSelect();$('crewAuthStatus').textContent='';}
+  if(employee){$('crewLogin').classList.add('hidden');$('crewTools').classList.remove('hidden');$('passengerAuthForm').classList.add('hidden');$('crewAuthStatus').textContent='Signed in with employee access.';}
+  await loadPassengerProfile(user,roleDoc.data());
  }catch(error){$('authStatus').textContent='';$('crewAuthStatus').textContent=error.message||'Unable to verify account role.';console.error(error);}
 });
 function renderMyBookings(){
  const box=$('myBookings');if(!box)return;
- if(currentRole==='staff'||currentRole==='admin'||currentRole==='employee'){
-  const label=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':'Employee';
-  box.innerHTML=`<div class="portal-card"><h2>Account details</h2><p><b>Signed in:</b> ${esc(auth.currentUser?.email||'')}</p><p><b>Account role:</b> ${label}</p><button class="secondary" id="signOut">Sign out</button></div>`;
- }else{
-  const userTransactions=transactions.filter(t=>t.user===currentUser);
-  box.innerHTML=`<h2>${esc(currentUser)}'s profile</h2><div class="portal-card"><h3>Virtual bank</h3><div class="price">£${userBalance()}</div><p class="muted">Fictional website currency only. This is not real money.</p><h3>Transaction history</h3>${userTransactions.map(t=>`<p>${esc(t.reason)} · ${t.amount<0?'-':'+'}£${Math.abs(t.amount)} <small>${esc(t.date.slice(0,10))}</small></p>`).join('')||'<p class="muted">No transactions yet.</p>'}</div><button class="secondary" id="signOut">Sign out</button>`;
- }
+ const label=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':currentRole==='employee'?'Employee':'Passenger';
+ const userTransactions=transactions.filter(t=>t.user===currentUser);
+ box.innerHTML=`<div class="portal-card"><h2>Account details</h2><p><b>Signed in:</b> ${esc(auth.currentUser?.email||currentUser)}</p><p><b>Account role:</b> ${label}</p><h3>Virtual bank</h3><div class="price">£${userBalance()}</div><p class="muted">Fictional website currency only. This is not real money.</p><h3>Transaction history</h3>${userTransactions.map(t=>`<p>${esc(t.reason)} · ${t.amount<0?'-':'+'}£${Math.abs(t.amount)} <small>${esc(t.date.slice(0,10))}</small></p>`).join('')||'<p class="muted">No transactions yet.</p>'}<button class="secondary" id="signOut">Sign out</button></div>`;
  renderPassengerMessages();renderMyFlights();
  const signOut=$('signOut');if(signOut)signOut.onclick=async()=>{await auth.signOut();currentUser='';$('myBookings').innerHTML='';renderPassengerMessages();updateBookingAccountStatus();$('authStatus').textContent='You are signed out.'};
 }
 function renderMyFlights(){
  const box=$('myFlightsList');if(!box)return;
  if(!auth.currentUser){box.innerHTML='<p class="muted">Sign in through My Profile to view your flights.</p>';return;}
- if(currentRole!=='passenger'||!currentUser){
-  const roleLabel=currentRole==='admin'?'Administrator':currentRole==='staff'?'Staff':'Employee';
-  box.innerHTML=`<p class="muted">You are signed in as ${esc(auth.currentUser.email||roleLabel)} (${roleLabel}). My Flights displays bookings belonging to passenger accounts; this account does not have a passenger booking profile.</p>`;
-  return;
- }
- const mine=bookings.filter(b=>b.user===currentUser&&!b.cancelled);
+ if(!currentUser){box.innerHTML='<p class="muted">Your account is still loading. Please try again shortly.</p>';return;}
+ const mine=bookings.filter(b=>(b.ownerUid===auth.currentUser.uid||(!b.ownerUid&&b.user===currentUser))&&!b.cancelled);
  box.innerHTML=mine.length?mine.map(b=>{const f=flights.find(x=>x.id===b.flightId)||{};return `<div class="flight"><div><small>${esc(b.ref)} · ${esc(b.flightNo)}</small><strong>${esc(f.from||'?')} → ${esc(f.to||'?')}</strong></div><div><small>${esc(f.date||'')}</small><b>${esc(f.dep||'')} UTC</b></div><div><small>Operated by</small><b>${esc(f.operator||'Ryanair')}</b></div><button class="primary" onclick="openPortal('${esc(b.ref)}')">Open flight portal</button></div>`}).join(''):'<p class="muted">You have no booked flights.</p>';
 }
 function openPortal(ref){
