@@ -902,6 +902,18 @@ nav button.staff-nav-tab{margin-left:18px !important}
 .message-bubble small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.message-bubble p{white-space:pre-wrap;margin:0;overflow-wrap:anywhere}
 #passengerMessages,#staffMessaging{scroll-margin-top:90px}
 
+
+/* Careers role cards */
+.careers-list{display:flex;flex-direction:column;gap:12px}
+.career-card{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:20px 18px;background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);min-height:112px}
+.career-copy{min-width:0;flex:1}
+.career-copy h2{margin:0 0 9px;color:var(--ink);font-size:17px;letter-spacing:0}
+.career-description{margin:0;min-height:18px;color:var(--muted);font-size:13px;line-height:1.5}
+.career-apply{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:20px;min-width:126px;padding:12px 16px;border:0;border-radius:10px;background:var(--surface-solid);color:var(--ink);font-weight:800;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s ease,box-shadow .15s ease}
+.career-apply:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(0,0,0,.14)}
+.career-apply span{font-size:17px;line-height:10px}
+@media(max-width:600px){.career-card{padding:16px 13px;gap:12px;min-height:100px}.career-copy h2{font-size:15px}.career-apply{min-width:108px;padding:11px 12px;gap:10px;font-size:11px}}
+
 </style>
 </head>
 <body>
@@ -1019,7 +1031,17 @@ nav button.staff-nav-tab{margin-left:18px !important}
 
 
 
-<section id="careersPage" class="hidden"><div class="hero"><h1>Careers</h1><p>Explore opportunities with Ryanair Group.</p></div><div class="panel"><h2>Careers coming soon</h2><p class="muted">Information about virtual airline roles and applications will be published here.</p></div></section>
+<section id="careersPage" class="hidden">
+<div class="hero"><h1>Careers</h1><p>Explore opportunities with Ryanair Group.</p></div>
+<div class="careers-list" aria-label="Available career roles">
+  <article class="career-card"><div class="career-copy"><h2>Operations Management</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Operations Management')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Cadet Pilot</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Cadet Pilot')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Cabin Crew</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Cabin Crew')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Ground Handling</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Ground Handling')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Security</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Security')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Airport Employee</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Airport Employee')">Apply Now <span aria-hidden="true">→</span></button></article>
+</div>
+</section>
 
 <section id="crewPage" class="hidden">
 <div class="hero"><h1>Crew Center</h1><p>Employee information and crew resources.</p></div>
@@ -1200,6 +1222,7 @@ function updateBookingAccountStatus(){
  el.innerHTML=`<b>Your account is being prepared for booking.</b> Please wait a moment and try again.`;
 }
 function recordTransaction(user,amount,reason,ref='',actor='System',uid=auth.currentUser?.uid){transactions.push({uid:uid||'',user,amount,reason,ref,actor,date:new Date().toISOString()});}
+function careerApply(role){alert('Applications for '+role+' are not available yet.');}
 function showPage(p){
  updateBookingAccountStatus();
  ['book','manage','myFlights','portal','staff','crew','careers'].forEach(x=>$(x+'Page').classList.toggle('hidden',x!==p));
