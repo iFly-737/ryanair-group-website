@@ -905,20 +905,33 @@ nav button.staff-nav-tab{margin-left:18px !important}
 
 /* Careers role cards */
 .careers-list{display:flex;flex-direction:column;gap:12px}
-.career-card{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:22px;padding:20px 18px;background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);min-height:112px}
+.career-card{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:20px 18px;background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);min-height:112px}
 .career-copy{min-width:0;flex:1}
 .career-copy h2{margin:0 0 9px;color:var(--ink);font-size:17px;letter-spacing:0}
 .career-description{margin:0;min-height:18px;color:var(--muted);font-size:13px;line-height:1.5}
 .career-apply{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:20px;min-width:126px;padding:12px 16px;border:0;border-radius:10px;background:var(--surface-solid);color:var(--ink);font-weight:800;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s ease,box-shadow .15s ease}
 .career-apply:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(0,0,0,.14)}
 .career-apply span{font-size:17px;line-height:10px}
-.career-details{flex:0 0 100%;width:100%;padding:16px 2px 2px;border-top:1px solid var(--line);color:var(--ink);font-size:13px;line-height:1.65}
-.career-details[hidden]{display:none}
-.career-details h3{margin:0 0 6px;font-size:14px}
-.career-details ul{margin:0 0 14px;padding-left:20px}
-.career-details li{margin:3px 0}
-.career-details p{margin:0 0 8px}
 @media(max-width:600px){.career-card{padding:16px 13px;gap:12px;min-height:100px}.career-copy h2{font-size:15px}.career-apply{min-width:108px;padding:11px 12px;gap:10px;font-size:11px}}
+
+
+/* Passenger flight portal: compact airline-app layout; flight status changes text only. */
+.app-portal{max-width:620px;margin:0 auto;padding:0 0 22px;color:var(--ink)}
+.app-route-title{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border-radius:0 0 18px 18px;box-shadow:0 3px 10px rgba(0,0,0,.08);font-size:14px}
+.app-airline-mark,.app-brand-round{display:flex;align-items:center;justify-content:center;border-radius:50%;background:#123f91;color:#f4c928;font-weight:900}
+.app-airline-mark{width:38px;height:38px;font-size:20px}
+.app-status-heading{text-align:center;padding:20px 12px 14px}
+.app-status-heading h2{font-size:25px;margin:0 0 7px;color:var(--ink)}
+.app-status-pill{display:inline-block;padding:4px 10px;border-radius:20px;background:var(--surface-soft);font-size:11px;font-weight:800;color:var(--blue)}
+.app-status-heading p{font-size:12px;color:var(--muted);margin:7px 0 0}
+.app-gate-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 10px 12px}
+.app-gate-row>span{font-size:20px;color:var(--blue)}.app-gate-row small,.app-booking-details small{display:block;color:var(--muted);font-size:10px}.app-gate-row b{font-size:14px}
+.app-booking-card{display:flex;align-items:center;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;margin:0 10px 22px;min-height:112px}
+.app-brand-round{width:78px;height:78px;flex:0 0 78px;font-size:37px}.app-booking-details{margin-left:auto;display:grid;gap:9px;text-align:right}.app-booking-details b{font-size:12px}
+.app-next-heading{font-size:17px;margin:16px 14px 10px}.app-next-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 10px 14px}.app-next-card h3{font-size:14px;margin:0 0 6px}.app-next-card p{font-size:12px;margin:5px 0;color:var(--muted)}
+.portal-action{display:block;text-align:center;border:2px solid var(--blue);border-radius:10px;padding:9px;color:var(--blue);font-size:12px;font-weight:800;text-decoration:none}.portal-action-disabled{border-color:var(--line);color:var(--muted)}
+.app-blue-button{display:block;width:100%;border:0;border-radius:9px;padding:10px;background:#2474c5;color:white;font-weight:800;font-size:12px}.portal-passenger{display:inline-flex;gap:8px;align-items:center;margin:6px 10px 0 0;padding:7px;background:var(--surface-soft);border-radius:8px}.portal-passenger small{color:var(--muted)}.app-portal-footer{display:flex;gap:8px;flex-wrap:wrap;margin:14px 10px}.app-portal-footer button{flex:1}
+@media(max-width:600px){.app-route-title{margin:0 -10px}.app-status-heading h2{font-size:23px}.app-booking-card{padding:14px;gap:12px}.app-brand-round{width:66px;height:66px;flex-basis:66px}.app-booking-details{gap:8px}.app-next-card{margin-left:6px;margin-right:6px}}
 
 </style>
 </head>
@@ -1040,132 +1053,12 @@ nav button.staff-nav-tab{margin-left:18px !important}
 <section id="careersPage" class="hidden">
 <div class="hero"><h1>Careers</h1><p>Explore opportunities with Ryanair Group.</p></div>
 <div class="careers-list" aria-label="Available career roles">
-  <article class="career-card"><div class="career-copy"><h2>Operations Management</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" aria-expanded="false" onclick="careerApply('Operations Management')">Apply Now <span aria-hidden="true">→</span></button><div class="career-details" hidden>
-<h3>Benefits:</h3>
-<ul>
-<li>Extended leave available for holiday, educational, and compassionate reasons</li>
-<li>Work with a hardworking and talented staff team</li>
-<li>Experience a highly realistic working environment</li>
-<li>Opportunity to connect with other aviation enthusiasts</li>
-<li>Build experience for applying to other airlines.</li>
-</ul>
-<h3>Requirements:</h3>
-<p>Applicants must be at least 13 years old and have unrestricted access to ROBLOX and Discord</p>
-<ul>
-<li>Your account must be at least 50 days old at the time of applying</li>
-<li>You must be fluent in English and utilise proper spelling, punctuation, and grammar</li>
-<li>A friendly, professional, and adaptable attitude is required</li>
-<li>Strong customer service skills and a 'can do' attitude when interacting with the public</li>
-<li>A passion for aviation, travelling, and meeting new people</li>
-<li>Own a personal computer or laptop</li>
-<li>You must have good activity on the server and beyond</li>
-</ul>
-</div></article>
-  <article class="career-card"><div class="career-copy"><h2>Cadet Pilot</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" aria-expanded="false" onclick="careerApply('Cadet Pilot')">Apply Now <span aria-hidden="true">→</span></button><div class="career-details" hidden>
-<h3>Benefits:</h3>
-<ul>
-<li>Extended leave available for holiday, educational, and compassionate reasons</li>
-<li>Work with a hardworking and talented staff team</li>
-<li>Experience a highly realistic working environment</li>
-<li>Opportunity to connect with other aviation enthusiasts</li>
-<li>Build experience for applying to other airlines.</li>
-</ul>
-<h3>Requirements:</h3>
-<p>Applicants must be at least 13 years old and have unrestricted access to ROBLOX and Discord</p>
-<ul>
-<li>Your account must be at least 50 days old at the time of applying</li>
-<li>You must be fluent in English and utilise proper spelling, punctuation, and grammar</li>
-<li>A friendly, professional, and adaptable attitude is required</li>
-<li>Strong customer service skills and a 'can do' attitude when interacting with the public</li>
-<li>A passion for aviation, travelling, and meeting new people</li>
-<li>Own a personal computer or laptop</li>
-<li>You must have good activity on the server and beyond</li>
-</ul>
-</div></article>
-  <article class="career-card"><div class="career-copy"><h2>Cabin Crew</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" aria-expanded="false" onclick="careerApply('Cabin Crew')">Apply Now <span aria-hidden="true">→</span></button><div class="career-details" hidden>
-<h3>Benefits:</h3>
-<ul>
-<li>Extended leave available for holiday, educational, and compassionate reasons</li>
-<li>Work with a hardworking and talented staff team</li>
-<li>Experience a highly realistic working environment</li>
-<li>Opportunity to connect with other aviation enthusiasts</li>
-<li>Build experience for applying to other airlines.</li>
-</ul>
-<h3>Requirements:</h3>
-<p>Applicants must be at least 13 years old and have unrestricted access to ROBLOX and Discord</p>
-<ul>
-<li>Your account must be at least 50 days old at the time of applying</li>
-<li>You must be fluent in English and utilise proper spelling, punctuation, and grammar</li>
-<li>A friendly, professional, and adaptable attitude is required</li>
-<li>Strong customer service skills and a 'can do' attitude when interacting with the public</li>
-<li>A passion for aviation, travelling, and meeting new people</li>
-<li>Own a personal computer or laptop</li>
-<li>You must have good activity on the server and beyond</li>
-</ul>
-</div></article>
-  <article class="career-card"><div class="career-copy"><h2>Ground Handling</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" aria-expanded="false" onclick="careerApply('Ground Handling')">Apply Now <span aria-hidden="true">→</span></button><div class="career-details" hidden>
-<h3>Benefits:</h3>
-<ul>
-<li>Extended leave available for holiday, educational, and compassionate reasons</li>
-<li>Work with a hardworking and talented staff team</li>
-<li>Experience a highly realistic working environment</li>
-<li>Opportunity to connect with other aviation enthusiasts</li>
-<li>Build experience for applying to other airlines.</li>
-</ul>
-<h3>Requirements:</h3>
-<p>Applicants must be at least 13 years old and have unrestricted access to ROBLOX and Discord</p>
-<ul>
-<li>Your account must be at least 50 days old at the time of applying</li>
-<li>You must be fluent in English and utilise proper spelling, punctuation, and grammar</li>
-<li>A friendly, professional, and adaptable attitude is required</li>
-<li>Strong customer service skills and a 'can do' attitude when interacting with the public</li>
-<li>A passion for aviation, travelling, and meeting new people</li>
-<li>Own a personal computer or laptop</li>
-<li>You must have good activity on the server and beyond</li>
-</ul>
-</div></article>
-  <article class="career-card"><div class="career-copy"><h2>Security</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" aria-expanded="false" onclick="careerApply('Security')">Apply Now <span aria-hidden="true">→</span></button><div class="career-details" hidden>
-<h3>Benefits:</h3>
-<ul>
-<li>Extended leave available for holiday, educational, and compassionate reasons</li>
-<li>Work with a hardworking and talented staff team</li>
-<li>Experience a highly realistic working environment</li>
-<li>Opportunity to connect with other aviation enthusiasts</li>
-<li>Build experience for applying to other airlines.</li>
-</ul>
-<h3>Requirements:</h3>
-<p>Applicants must be at least 13 years old and have unrestricted access to ROBLOX and Discord</p>
-<ul>
-<li>Your account must be at least 50 days old at the time of applying</li>
-<li>You must be fluent in English and utilise proper spelling, punctuation, and grammar</li>
-<li>A friendly, professional, and adaptable attitude is required</li>
-<li>Strong customer service skills and a 'can do' attitude when interacting with the public</li>
-<li>A passion for aviation, travelling, and meeting new people</li>
-<li>Own a personal computer or laptop</li>
-<li>You must have good activity on the server and beyond</li>
-</ul>
-</div></article>
-  <article class="career-card"><div class="career-copy"><h2>Airport Employee</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" aria-expanded="false" onclick="careerApply('Airport Employee')">Apply Now <span aria-hidden="true">→</span></button><div class="career-details" hidden>
-<h3>Benefits:</h3>
-<ul>
-<li>Extended leave available for holiday, educational, and compassionate reasons</li>
-<li>Work with a hardworking and talented staff team</li>
-<li>Experience a highly realistic working environment</li>
-<li>Opportunity to connect with other aviation enthusiasts</li>
-<li>Build experience for applying to other airlines.</li>
-</ul>
-<h3>Requirements:</h3>
-<p>Applicants must be at least 13 years old and have unrestricted access to ROBLOX and Discord</p>
-<ul>
-<li>Your account must be at least 50 days old at the time of applying</li>
-<li>You must be fluent in English and utilise proper spelling, punctuation, and grammar</li>
-<li>A friendly, professional, and adaptable attitude is required</li>
-<li>Strong customer service skills and a 'can do' attitude when interacting with the public</li>
-<li>A passion for aviation, travelling, and meeting new people</li>
-<li>Own a personal computer or laptop</li>
-<li>You must have good activity on the server and beyond</li>
-</ul>
-</div></article>
+  <article class="career-card"><div class="career-copy"><h2>Operations Management</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Operations Management')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Cadet Pilot</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Cadet Pilot')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Cabin Crew</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Cabin Crew')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Ground Handling</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Ground Handling')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Security</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Security')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Airport Employee</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Airport Employee')">Apply Now <span aria-hidden="true">→</span></button></article>
 </div>
 </section>
 
@@ -1324,7 +1217,7 @@ flights.forEach(f=>{if(!f.operator)f.operator='Ryanair'});
 let bookings=JSON.parse(localStorage.getItem('rg_bookings')||'[]');
 // Remove bookings whose scheduled flight no longer exists.
 bookings=bookings.filter(b=>flights.some(f=>f.id===b.flightId));
-let selectedFlight=null,pax=[],fare='',seats=[],currentUser='',staff=false,employee=false,currentRole='guest';window.currentDiscordUsername='';
+let selectedFlight=null,pax=[],fare='',seats=[],randomSeatIndexes=[],currentUser='',staff=false,employee=false,currentRole='guest';window.currentDiscordUsername='';
 let accounts=JSON.parse(localStorage.getItem('rg_accounts')||'{}');
 let transactions=JSON.parse(localStorage.getItem('rg_transactions')||'[]');
 Object.keys(accounts).forEach(k=>{if(accounts[k] && (accounts[k].balance===undefined||accounts[k].balance===null))accounts[k].balance=100;});
@@ -1348,23 +1241,7 @@ function updateBookingAccountStatus(){
  el.innerHTML=`<b>Your account is being prepared for booking.</b> Please wait a moment and try again.`;
 }
 function recordTransaction(user,amount,reason,ref='',actor='System',uid=auth.currentUser?.uid){transactions.push({uid:uid||'',user,amount,reason,ref,actor,date:new Date().toISOString()});}
-let expandedCareerRole=null;
-function careerApply(role){
- const card=[...document.querySelectorAll('.career-card')].find(c=>c.querySelector('h2')?.textContent.trim()===role);
- if(!card)return;
- const details=card.querySelector('.career-details');
- if(expandedCareerRole===role){
-  window.open('https://forms.cloud.microsoft/r/NfFPKP0aHb','_blank','noopener,noreferrer');
-  return;
- }
- document.querySelectorAll('.career-card').forEach(c=>{
-  const panel=c.querySelector('.career-details');
-  const button=c.querySelector('.career-apply');
-  if(panel)panel.hidden=true;
-  if(button)button.setAttribute('aria-expanded','false');
- });
- if(details){details.hidden=false;card.querySelector('.career-apply').setAttribute('aria-expanded','true');expandedCareerRole=role;}
-}
+function careerApply(role){if(role==='Operations Management'){window.open('https://forms.cloud.microsoft/r/NfFPKP0aHb','_blank','noopener,noreferrer');return;}alert('Applications for '+role+' are not available yet.');}
 function showPage(p){
  updateBookingAccountStatus();
  ['book','manage','myFlights','portal','staff','crew','careers'].forEach(x=>$(x+'Page').classList.toggle('hidden',x!==p));
@@ -1425,25 +1302,26 @@ function goStep(n){
 }
 function chooseFare(f){
  fare=f;document.querySelectorAll('.fare').forEach(x=>x.classList.toggle('chosen',x.dataset.fare===f));
- seats=[];renderPassengerForms();goStep(3);updateBookingPriceBar();
+ seats=[];randomSeatIndexes=[];renderPassengerForms();goStep(3);updateBookingPriceBar();
 }
-function seatCost(label){const row=Number(String(label).match(/\d+/)?.[0]||0);return row===1||row===9?15:row>=2&&row<=5?10:0}
-function bookingTotal(){const seatTotal=seats.reduce((sum,label)=>sum+seatCost(label),0);return farePrice()*pax.length+seatTotal}
+function seatCost(label,isRandom=false){if(isRandom)return 0;const row=Number(String(label).match(/\d+/)?.[0]||0);return row===1||row===9?25:row>=2&&row<=5?20:10}
+function bookingTotal(){const seatTotal=seats.reduce((sum,label,i)=>sum+seatCost(label,randomSeatIndexes.includes(i)),0);return farePrice()*pax.length+seatTotal}
 function updateBookingPriceBar(){const bar=$('bookingPriceBar');if(!bar)return;const stepVisible=[1,2,3,4,5].some(n=>!$('bookingStep'+n).classList.contains('hidden'));bar.classList.toggle('hidden',!stepVisible||!selectedFlight);$('bookingLiveTotal').textContent='£'+bookingTotal().toFixed(2);$('bookingLiveBreakdown').textContent=`${pax.length||1} passenger${(pax.length||1)===1?'':'s'} · ${fare||'Fare not selected'} · ${seats.length} of ${pax.length} seats selected`;}
 function renderSeats(){
  let taken=bookings.filter(b=>b.flightId===selectedFlight.id).flatMap(b=>b.seats||[]);
  const instruction=$('seatInstruction');if(instruction)instruction.textContent='';
- let rows=Array.from({length:17},(_,r)=>{let row=r+1;let buttons=['A','B','C','D'].map(c=>{let label=row+c,busy=taken.includes(label),sel=seats.includes(label),cost=seatCost(label),kind=cost===15?'extra':cost===10?'paid10':'standard';return `<button type="button" aria-label="Seat ${label}, ${cost?'£'+cost:'free'}${busy?', unavailable':''}" title="Seat ${label} · ${cost?'£'+cost:'Free'}" class="seat ${kind} ${busy?'taken':''} ${sel?'selected':''}" ${busy?'disabled':''} onclick="toggleSeat('${label}')"></button>`;});return `<div class="seat-row">${buttons[0]}${buttons[1]}<div class="row-number">${row}</div>${buttons[2]}${buttons[3]}</div>`;}).join('');
- $('seatGrid').innerHTML=`<div class="seat-map"><div class="seat-price-heading"><div><b>Extra Space</b><span><i class="seat-swatch extra-swatch"></i>from <strong>£15.00</strong></span></div><div><b>Front</b><span><i class="seat-swatch front-swatch"></i>from <strong>£10.00</strong></span></div></div><div class="cabin"><div class="seat-head"><span>A</span><span>B</span><span></span><span>C</span><span>D</span></div>${rows}</div><div class="seat-legend"><span><i style="background:#76bce9"></i>Standard · Free</span><span><i style="background:#f4c928"></i>Front · £10</span><span><i style="background:#123f91"></i>Extra Space · £15</span><span><i style="background:#bfc4cc"></i>Unavailable</span><span><i style="background:#159b65"></i>Selected</span></div></div>`;
- const seatTotal=seats.reduce((sum,label)=>sum+seatCost(label),0);
- $('selectedSeatSummary').textContent=seats.length?`Selected: ${seats.map(label=>`${label} (£${seatCost(label).toFixed(2)})`).join(', ')} · Seat charges: £${seatTotal.toFixed(2)}`:'No seats selected.';
+ let rows=Array.from({length:17},(_,r)=>{let row=r+1;let buttons=['A','B','C','D'].map(c=>{let label=row+c,busy=taken.includes(label),sel=seats.includes(label),rowNum=Number(label.match(/\d+/)[0]),cost=seatCost(label),kind=(rowNum===1||rowNum===9)?'extra':(rowNum>=2&&rowNum<=5)?'paid10':'standard';return `<button type="button" aria-label="Seat ${label}, ${cost?'£'+cost:'free'}${busy?', unavailable':''}" title="Seat ${label} · ${cost?'£'+cost:'Free'}" class="seat ${kind} ${busy?'taken':''} ${sel?'selected':''}" ${busy?'disabled':''} onclick="toggleSeat('${label}')"></button>`;});return `<div class="seat-row">${buttons[0]}${buttons[1]}<div class="row-number">${row}</div>${buttons[2]}${buttons[3]}</div>`;}).join('');
+ $('seatGrid').innerHTML=`<div class="seat-map"><button type="button" class="secondary" style="width:100%;margin:0 0 12px" onclick="chooseRandomSeats()">Choose random Standard seats · Free</button><div class="seat-price-heading"><div><b>Extra Space</b><span><i class="seat-swatch extra-swatch"></i>from <strong>£25.00</strong></span></div><div><b>Front</b><span><i class="seat-swatch front-swatch"></i>from <strong>£20.00</strong></span></div></div><div class="cabin"><div class="seat-head"><span>A</span><span>B</span><span></span><span>C</span><span>D</span></div>${rows}</div><div class="seat-legend"><span><i style="background:#76bce9"></i>Standard · £10 selected / free random</span><span><i style="background:#f4c928"></i>Front · £20</span><span><i style="background:#123f91"></i>Extra Space · £25</span><span><i style="background:#bfc4cc"></i>Unavailable</span><span><i style="background:#159b65"></i>Selected</span></div></div>`;
+ const seatTotal=seats.reduce((sum,label,i)=>sum+seatCost(label,randomSeatIndexes.includes(i)),0);
+ $('selectedSeatSummary').textContent=seats.length?`Selected: ${seats.map((label,i)=>`${label} (£${seatCost(label,randomSeatIndexes.includes(i)).toFixed(2)}${randomSeatIndexes.includes(i)?' · random':''})`).join(', ')} · Seat charges: £${seatTotal.toFixed(2)}`:'Choose specific seats (£10–£25 each) or select free random Standard seats.';
  $('toConfirm').disabled=seats.length!==pax.length;updateBookingPriceBar();
 }
-function toggleSeat(s){if(seats.includes(s))seats=seats.filter(x=>x!==s);else if(seats.length<pax.length)seats.push(s);else if(pax.length>0)seats[seats.length-1]=s;renderSeats();}
+function toggleSeat(s){randomSeatIndexes=[];if(seats.includes(s))seats=seats.filter(x=>x!==s);else if(seats.length<pax.length)seats.push(s);else if(pax.length>0)seats[seats.length-1]=s;renderSeats();}
+function chooseRandomSeats(){const taken=bookings.filter(b=>b.flightId===selectedFlight.id).flatMap(b=>b.seats||[]);const available=[];for(let r=6;r<=17;r++){if(r===9)continue;for(const c of ['A','B','C','D']){const label=r+c;if(!taken.includes(label))available.push(label);}}if(available.length<pax.length){alert('There are not enough available Standard seats for random allocation. Please select seats manually.');return;}for(let i=available.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[available[i],available[j]]=[available[j],available[i]];}seats=available.slice(0,pax.length);randomSeatIndexes=seats.map((_,i)=>i);renderSeats();}
 $('toConfirm').onclick=()=>goStep(5);
 function renderReview(){
- let seatTotal=seats.reduce((sum,label)=>sum+seatCost(label),0);let total=farePrice()*pax.length+seatTotal;
- $('review').innerHTML=`<div class="notice"><b>${esc(selectedFlight.no)}</b> · ${esc(selectedFlight.from)} → ${esc(selectedFlight.to)}<br>${selectedFlight.date} · ${selectedFlight.dep} UTC · Gate ${esc(selectedFlight.gate)}</div><p><b>Fare:</b> ${esc(fare)} — £${farePrice()} per passenger</p><p><b>Passengers:</b><br>${pax.map((p,i)=>`@${esc(p.roblox)} · Discord: ${esc(p.discord)} · Seat ${seats[i]||'Not selected'}`).join('<br>')}</p><p><b>Seat charges:</b> £${seatTotal}</p><h2>Total: £${total}</h2><p><b>Virtual balance before payment:</b> £${userBalance()}</p><p class="muted">Your balance is only deducted after you accept the simulated payment.</p>`;
+ let seatTotal=seats.reduce((sum,label,i)=>sum+seatCost(label,randomSeatIndexes.includes(i)),0);let total=farePrice()*pax.length+seatTotal;
+ $('review').innerHTML=`<div class="notice"><b>${esc(selectedFlight.no)}</b> · ${esc(selectedFlight.from)} → ${esc(selectedFlight.to)}<br>${selectedFlight.date} · ${selectedFlight.dep} UTC · Gate ${esc(selectedFlight.gate)}</div><p><b>Fare:</b> ${esc(fare)} — £${farePrice()} per passenger</p><p><b>Passengers:</b><br>${pax.map((p,i)=>`@${esc(p.roblox)} · Discord: ${esc(p.discord)} · Seat ${seats[i]||'Not selected'}${randomSeatIndexes.includes(i)?' (random, free)':''}`).join('<br>')}</p><p><b>Seat charges:</b> £${seatTotal}</p><h2>Total: £${total}</h2><p><b>Virtual balance before payment:</b> £${userBalance()}</p><p class="muted">Your balance is only deducted after you accept the simulated payment.</p>`;
 }
 $('confirmBooking').onclick=async()=>{
  if(!auth.currentUser || !currentUser || !accounts[auth.currentUser.uid]){alert('Please sign in before paying. Your booking cannot be charged to a guest account.');showPage('manage');return;}
@@ -1453,15 +1331,15 @@ $('confirmBooking').onclick=async()=>{
  if(names.some(n=>!n)||new Set(names).size!==names.length){alert('Passenger Roblox usernames must be present and unique.');goStep(3);return;}
  const existingNames=new Set(bookings.filter(b=>b.flightId===selectedFlight.id).flatMap(b=>(b.passengers||[]).map(p=>String(p.roblox||'').trim().toLowerCase())));
  if(names.some(n=>existingNames.has(n))){alert('One or more Roblox usernames are already booked on this flight. Please check the passenger details.');goStep(3);return;}
- const seatCost=seats.reduce((sum,s)=>{let r=+s.match(/\d+/)[0];return sum+(r===1||r===9?15:r>=2&&r<=5?10:0)},0);
- const total=farePrice()*pax.length+seatCost;
+ const seatCharges=seats.reduce((sum,s,i)=>sum+(randomSeatIndexes.includes(i)?0:(()=>{let r=+s.match(/\d+/)[0];return r===1||r===9?25:r>=2&&r<=5?20:10})()),0);
+ const total=farePrice()*pax.length+seatCharges;
  const balance=Number(accounts[accountUid].balance)||0;
  if(balance<total){alert(`Insufficient virtual balance. You need £${total}, but have £${balance}.`);return;}
  if(!confirm(`Accept simulated Apple Pay?\n\nTotal: £${total} virtual currency\nBalance after payment: £${balance-total}\n\nNo real money will be taken.`))return;
  accounts[accountUid].balance=balance-total;
  const ref='RG'+Math.random().toString(36).slice(2,8).toUpperCase();
  const passengerRefs=pax.map(()=> 'P'+Math.random().toString(36).slice(2,8).toUpperCase());
- const booking={ref,passengerRefs,flightId:selectedFlight.id,flightNo:selectedFlight.no,user,ownerUid:auth.currentUser.uid,passengers:pax,seats,fare,amountPaid:total,refunded:false,rewardedPassengerIndexes:[],cancelled:false};
+ const booking={ref,passengerRefs,flightId:selectedFlight.id,flightNo:selectedFlight.no,user,ownerUid:auth.currentUser.uid,passengers:pax,seats,randomSeatIndexes:[...randomSeatIndexes],fare,amountPaid:total,refunded:false,rewardedPassengerIndexes:[],cancelled:false};
  bookings.push(booking);
  recordTransaction(user,-total,`Booking payment for ${selectedFlight.no}`,ref,currentRole,accountUid);
  $('confirmBooking').disabled=true;
@@ -1479,7 +1357,7 @@ $('confirmBooking').onclick=async()=>{
   alert('The booking could not be saved online, so it was not confirmed. Please try again. Details: '+(error.message||error));
  }finally{$('confirmBooking').disabled=false;}
 };
-function resetBooking(){selectedFlight=null;pax=[];fare='';seats=[];$('bookingDone').classList.add('hidden');$('bookingPriceBar').classList.add('hidden');goStep(1);renderFlights()}
+function resetBooking(){selectedFlight=null;pax=[];fare='';seats=[];randomSeatIndexes=[];$('bookingDone').classList.add('hidden');$('bookingPriceBar').classList.add('hidden');goStep(1);renderFlights()}
 async function loadPassengerProfile(user,profile){
  profile=profile||((await db.collection('users').doc(user.uid).get()).data()||{});
  const username=String(profile.robloxUsername||profile.email||user.email||user.uid).trim();
@@ -1561,75 +1439,39 @@ function renderMyFlights(){
  box.innerHTML=mine.length?mine.map(b=>{const f=flights.find(x=>x.id===b.flightId)||{};return `<div class="flight"><div><small>${esc(b.ref)} · ${esc(b.flightNo)}</small><strong>${esc(f.from||'?')} → ${esc(f.to||'?')}</strong></div><div><small>${esc(f.date||'')}</small><b>${esc(f.dep||'')} UTC</b></div><div><small>Operated by</small><b>${esc(f.operator||'Ryanair')}</b></div><button class="primary" onclick="openPortal('${esc(b.ref)}')">Open flight portal</button></div>`}).join(''):'<p class="muted">You have no booked flights.</p>';
 }
 function openPortal(ref){
-  let b=bookings.find(x=>x.ref===ref);
-  if(!b)return;
+  let b=bookings.find(x=>x.ref===ref);if(!b)return;
   let f=flights.find(x=>x.id===b.flightId);
-  if(!f){
-    bookings=bookings.filter(x=>x.flightId!==b.flightId);
-    save();
-    showPage('manage');
-    renderMyBookings();
-    alert('This flight is no longer available. Its booking has been removed.');
-    return;
-  }
+  if(!f){bookings=bookings.filter(x=>x.flightId!==b.flightId);save();showPage('manage');renderMyBookings();alert('This flight is no longer available. Its booking has been removed.');return;}
   showPage('portal');
-  const flightStatus=String(f.status||'Scheduled').toLowerCase();
-  const statusMessages={
-   'scheduled':['Booking confirmed','Your flight is scheduled. Check this portal again closer to departure for check-in and gate information.'],
-   'check-in':['Check-in is open','Please proceed to the airport and follow the check-in desk information shown below.'],
-   'boarding':['Boarding now','Proceed to the displayed gate and have your booking reference ready. Follow airport staff instructions.'],
-   'gate closed':['Gate closed','The gate is marked closed. Contact airport or airline staff immediately if you believe you are affected.'],
-   'departed':['Flight departed','This flight has departed. Live departure information is no longer available here.'],
-   'in flight':['Aircraft en route','Your flight is currently shown as in flight.'],
-   'landed':['Flight landed','The flight is marked as landed. Please follow airport arrival signs and staff instructions.'],
-   'delayed':['Flight delayed','The flight is delayed. Check the latest announcement below and keep checking for updated departure information.'],
-   'cancelled':['Flight cancelled','This flight is cancelled. Please contact staff using Private Messages for assistance with your booking.']
+  const status=String(f.status||'Scheduled');
+  const statusText={
+    'Scheduled':'Your flight is scheduled.',
+    'Check-in':'Check-in is now open.',
+    'Boarding':'Boarding is now in progress. Please proceed to the gate.',
+    'Gate closed':'The gate is closed. Contact airport staff if you need assistance.',
+    'Departed':'Your flight has departed.',
+    'In flight':'Your aircraft is currently en route.',
+    'Landed':'Your flight has landed.',
+    'Delayed':f.announcement||'Your flight is delayed. Please monitor this portal for updates.',
+    'Cancelled':f.announcement||'Your flight has been cancelled. Please contact staff through My Profile.'
   };
-  const statusInfo=statusMessages[flightStatus]||['Flight update',`Current flight status: ${f.status||'Unknown'}. Check announcements for further information.`];
-  const isCancelled=flightStatus==='cancelled';
-  const isDeparted=['departed','in flight','landed'].includes(flightStatus);
-  let phasePanel='';
-  if(flightStatus==='scheduled') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Before your flight</h3><p>Your booking is confirmed. Check-in has not opened yet. Return here for check-in desk, boarding and gate updates.</p></div>`;
-  else if(flightStatus==='check-in') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Check-in open</h3><p>Proceed to the airport check-in area.</p><div class="portal-grid"><div class="portal-stat"><small>Terminal</small><b>${esc(f.terminal||'TBC')}</b></div><div class="portal-stat"><small>Check-in desks</small><b>${esc(f.desks||'TBC')}</b></div></div></div>`;
-  else if(flightStatus==='boarding') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Proceed to boarding</h3><p>Go to your departure gate now and have your booking reference ready.</p><div class="portal-grid"><div class="portal-stat"><small>Gate</small><b>${esc(f.gate||'TBC')}</b></div><div class="portal-stat"><small>Boarding time · UTC</small><b>${esc(f.boarding||'TBC')}</b></div></div></div>`;
-  else if(flightStatus==='gate closed') phasePanel=`<div class="notice"><b>Gate closed</b><br>Boarding is no longer shown as available. Speak to airport staff if you need assistance.</div>`;
-  else if(flightStatus==='departed') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Departure update</h3><p>This aircraft has departed. The passenger portal is now showing post-departure information.</p></div>`;
-  else if(flightStatus==='in flight') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Onboard</h3><p>Your aircraft is currently en route. Onboard menu information is available below if published by staff.</p></div>`;
-  else if(flightStatus==='landed') phasePanel=`<div class="portal-card"><h3 class="portal-section-title">Arrival</h3><p>Your flight is marked as landed. Follow airport signs and staff instructions for arrivals and baggage collection.</p></div>`;
-  else if(flightStatus==='delayed') phasePanel=`<div class="notice"><b>Delay information</b><br>${esc(f.announcement||'The flight is delayed. Please monitor this portal for updates.')}</div>`;
-  else if(isCancelled) phasePanel=`<div class="notice"><b>Action required</b><br>Your flight is cancelled. Do not travel to the gate for this flight. Send staff a private message from My Profile for assistance.</div>`;
+  const statusMessage=statusText[status]||`Current flight status: ${status}.`;
+  const seatLines=(b.passengers||[]).map((p,i)=>`<div class="portal-passenger"><b>Seat</b><strong>${esc((b.seats||[])[i]||'TBC')}</strong><small>${esc(p.roblox||'Passenger')}</small></div>`).join('');
+  const magazine=f.magazineOn&&f.magazine?`<a class="portal-action" href="${esc(f.magazine)}" target="_blank" rel="noopener">See Inflight Magazine</a>`:`<div class="portal-action portal-action-disabled">Inflight magazine unavailable</div>`;
   $('passengerPortal').innerHTML=`
-  <div class="portal-top">
-    <div class="portal-strip"><b>RYANAIR GROUP</b><span>${esc(f.date)}</span><span>${esc(b.flightNo)}</span><span>${esc(f.status||'Booked')}</span></div>
-  </div>
-  <div class="notice ${isCancelled?'':'success'}"><b>${statusInfo[0]}</b><br>${statusInfo[1]}</div>
-  ${phasePanel}
-  <div class="portal-card">
-    <div class="portal-booking-head"><span class="tag">${esc(f.status||'Booked')}</span><span class="muted">BOOKING ${esc(b.ref)}</span></div>
-    <div class="portal-route">
-      <div class="airport"><strong>${esc(airportCode(f.from))}</strong><small>${esc(f.from)}</small><b>${esc(f.dep||'TBC')} UTC</b><small>Departure</small></div>
-      <div class="route-line">✦</div>
-      <div class="airport"><strong>${esc(airportCode(f.to))}</strong><small>${esc(f.to)}</small><b>${esc(f.arr||'TBC')} UTC</b><small>Arrival</small></div>
-    </div>
-    <div class="portal-grid">
-      <div class="portal-stat"><small>Gate</small><b>${isCancelled?'Cancelled':esc(f.gate||'TBC')}</b></div>
-      <div class="portal-stat"><small>Terminal</small><b>${esc(f.terminal||'TBC')}</b></div>
-      <div class="portal-stat"><small>Boarding · UTC</small><b>${esc(f.boarding||'TBC')}</b></div>
-      <div class="portal-stat"><small>Check-in desks</small><b>${esc(f.desks||'TBC')}</b></div>
-      <div class="portal-stat"><small>Aircraft</small><b>${esc(f.aircraft||'TBC')}</b></div>
-      <div class="portal-stat"><small>Fare</small><b>${esc(b.fare)}</b></div>
-    </div>
-  </div>
-  <div class="portal-card">
-    <h3 class="portal-section-title">Passenger details</h3>
-    ${b.passengers.map((p,i)=>`<p><b>@${esc(p.roblox||'Unknown')}</b> <span class="muted">· Discord: ${esc(p.discord||'Not supplied')} · Seat ${esc(b.seats[i]||'TBC')}</span></p>`).join('')}
-    <p class="muted">Booking reference: ${esc(b.ref)}</p>
-  </div>
-  <div class="portal-card"><h3 class="portal-section-title">Latest announcement</h3><p>${esc(f.announcement||'There are no current announcements.')}</p></div>
-  <div class="portal-card"><h3 class="portal-section-title">Private messages</h3><p>Use My Profile to read and reply to private messages from staff.</p><button class="secondary" onclick="showPage('manage');renderMyBookings()">Open messages</button></div>
-  ${flightStatus==='in flight'?`<div class="portal-card"><h3 class="portal-section-title">Inflight menu</h3><p style="white-space:pre-wrap">${esc(f.menu||'Inflight menu information will be published here.')}</p></div>`:''}
-  ${f.magazineOn&&f.magazine?`<div class="portal-card"><h3 class="portal-section-title">Inflight magazine</h3><a href="${esc(f.magazine)}" target="_blank" rel="noopener">Open magazine</a></div>`:''}
-  <div class="actions"><button class="secondary" onclick="showPage('manage')">Back to My Flights</button>${!isDeparted&&!isCancelled?`<button class="secondary cancel-booking" onclick="cancelBooking('${esc(b.ref)}')">Cancel booking</button>`:''}</div>`;
+  <div class="app-portal">
+    <div class="app-route-title"><div class="app-airline-mark">✈</div><div>Your flight to <b>${esc(f.to)}</b></div></div>
+    <div class="app-status-heading"><h2>${f.gate&&f.gate!=='TBC'?'Gate '+esc(f.gate):'Gate Pending'}</h2><span class="app-status-pill">${esc(status)}</span><p>${esc(statusMessage)}</p></div>
+    <div class="app-gate-row"><span>▤</span><div><small>Gate</small><b>${f.gate&&f.gate!=='TBC'?esc(f.gate):'Pending'}</b></div></div>
+    <div class="app-booking-card"><div class="app-brand-round">✈</div><div class="app-booking-details"><div><small>Seat</small><b>${esc((b.seats||[]).join(', ')||'TBC')}</b></div><div><small>Queue</small><b>${esc(f.queue||'Non-Priority')}</b></div><div><small>Airport duty</small><b>${esc(f.airportDuty||'Any')}</b></div></div></div>
+    <h3 class="app-next-heading">Next steps for your flight</h3>
+    <section class="app-next-card">${magazine}</section>
+    <section class="app-next-card"><h3>♧ Lounge Access</h3><p>Relax and visit the airport's premium departure lounge before your flight.</p><button type="button" class="app-blue-button" onclick="alert('Lounge access is not available yet.')">Buy Lounge Access</button></section>
+    <section class="app-next-card"><h3>▤ Security</h3><p>We advise you to pass security 30 min before your flight.</p></section>
+    <section class="app-next-card"><h3>Booking details</h3><p><b>${esc(b.flightNo)}</b> · ${esc(f.date)} · ${esc(f.dep||'TBC')} UTC</p><p>${esc(f.from)} → ${esc(f.to)}</p><p>Booking reference: ${esc(b.ref)}</p>${seatLines}</section>
+    <section class="app-next-card"><h3>Latest announcement</h3><p>${esc(f.announcement||'There are no additional announcements.')}</p><button type="button" class="secondary" onclick="showPage('manage');renderMyBookings()">Open private messages</button></section>
+    <div class="app-portal-footer"><button class="secondary" onclick="showPage('manage')">Back to My Flights</button>${!['Departed','In flight','Landed','Cancelled'].includes(status)?`<button class="secondary cancel-booking" onclick="cancelBooking('${esc(b.ref)}')">Cancel booking</button>`:''}</div>
+  </div>`;
 }
 function airportCode(name){
   const known={'London Stansted':'STN','Krakow':'KRK','Dublin':'DUB','Milan Bergamo':'BGY'};
