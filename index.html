@@ -933,6 +933,12 @@ nav button.staff-nav-tab{margin-left:18px !important}
 .app-blue-button{display:block;width:100%;border:0;border-radius:9px;padding:10px;background:#2474c5;color:white;font-weight:800;font-size:12px}.portal-passenger{display:inline-flex;gap:8px;align-items:center;margin:6px 10px 0 0;padding:7px;background:var(--surface-soft);border-radius:8px}.portal-passenger small{color:var(--muted)}.app-portal-footer{display:flex;gap:8px;flex-wrap:wrap;margin:14px 10px}.app-portal-footer button{flex:1}
 @media(max-width:600px){.app-route-title{margin:0 -10px}.app-status-heading h2{font-size:23px}.app-booking-card{padding:14px;gap:12px}.app-brand-round{width:66px;height:66px;flex-basis:66px}.app-booking-details{gap:8px}.app-next-card{margin-left:6px;margin-right:6px}}
 
+/* Selected seats fill green instead of showing an outline. */
+.seat.selected,.seat.selected.extra,.seat.selected.paid10,.seat.selected.standard{
+  background:#159b65!important;border:1px solid #107849!important;
+  outline:none!important;box-shadow:inset 0 -4px rgba(0,0,0,.12)!important;color:#fff!important;
+}
+.seat.selected::before{color:#fff!important}
 </style>
 </head>
 <body>
@@ -1132,6 +1138,7 @@ nav button.staff-nav-tab{margin-left:18px !important}
 <div class="field"><label>Magazine link</label><input id="portalMagazine" placeholder="https://..."></div>
 <div class="field"><label>Magazine visibility</label><select id="portalMagazineOn"><option value="false">Hidden</option><option value="true">Visible</option></select></div>
 </div>
+<div class="field"><label>Server link</label><input id="portalServerLink" type="url" placeholder="Paste the server invite link here once the server is open"></div>
 <button class="primary" id="savePortalInfo">Save passenger information</button>
 </div>
 <h2 style="margin-top:28px">Passenger attendance &amp; staff rewards</h2>
@@ -1458,16 +1465,20 @@ function openPortal(ref){
   const statusMessage=statusText[status]||`Current flight status: ${status}.`;
   const seatLines=(b.passengers||[]).map((p,i)=>`<div class="portal-passenger"><b>Seat</b><strong>${esc((b.seats||[])[i]||'TBC')}</strong><small>${esc(p.roblox||'Passenger')}</small></div>`).join('');
   const magazine=f.magazineOn&&f.magazine?`<a class="portal-action" href="${esc(f.magazine)}" target="_blank" rel="noopener">See Inflight Magazine</a>`:`<div class="portal-action portal-action-disabled">Inflight magazine unavailable</div>`;
+  const priorityFares=['Regular','Flexi Plus'];
+  const queueLabel=priorityFares.includes(String(b.fare||''))?'Priority':'Non-Priority';
+  const boardingDoors=(b.seats||[]).map(seat=>{const row=parseInt(String(seat).match(/\d+/)?.[0]||'0',10);return row>=1&&row<=8?'Front':row>=9&&row<=17?'Back':'TBC';});
+  const boardingDoorLabel=[...new Set(boardingDoors)].join(' & ')||'TBC';
+  const serverSection=f.serverLink?`<a class="portal-action" href="${esc(f.serverLink)}" target="_blank" rel="noopener">Join Server</a>`:`<div class="portal-action portal-action-disabled">The server link will be available here once the server is open.</div>`;
   $('passengerPortal').innerHTML=`
   <div class="app-portal">
-    <div class="app-route-title"><div class="app-airline-mark">✈</div><div>Your flight to <b>${esc(f.to)}</b></div></div>
+    <div class="app-route-title"><div>Your flight to <b>${esc(f.to)}</b></div></div>
     <div class="app-status-heading"><h2>${f.gate&&f.gate!=='TBC'?'Gate '+esc(f.gate):'Gate Pending'}</h2><span class="app-status-pill">${esc(status)}</span><p>${esc(statusMessage)}</p></div>
     <div class="app-gate-row"><span>▤</span><div><small>Gate</small><b>${f.gate&&f.gate!=='TBC'?esc(f.gate):'Pending'}</b></div></div>
-    <div class="app-booking-card"><div class="app-brand-round">✈</div><div class="app-booking-details"><div><small>Seat</small><b>${esc((b.seats||[]).join(', ')||'TBC')}</b></div><div><small>Queue</small><b>${esc(f.queue||'Non-Priority')}</b></div><div><small>Airport duty</small><b>${esc(f.airportDuty||'Any')}</b></div></div></div>
+    <div class="app-booking-card"><div class="app-booking-details"><div><small>Seat</small><b>${esc((b.seats||[]).join(', ')||'TBC')}</b></div><div><small>Queue</small><b>${esc(queueLabel)}</b></div><div><small>Boarding door</small><b>${esc(boardingDoorLabel)}</b></div></div></div>
     <h3 class="app-next-heading">Next steps for your flight</h3>
     <section class="app-next-card">${magazine}</section>
-    <section class="app-next-card"><h3>♧ Lounge Access</h3><p>Relax and visit the airport's premium departure lounge before your flight.</p><button type="button" class="app-blue-button" onclick="alert('Lounge access is not available yet.')">Buy Lounge Access</button></section>
-    <section class="app-next-card"><h3>▤ Security</h3><p>We advise you to pass security 30 min before your flight.</p></section>
+    <section class="app-next-card"><h3>Server link</h3><p>Join the flight server using the link below.</p>${serverSection}</section>
     <section class="app-next-card"><h3>Booking details</h3><p><b>${esc(b.flightNo)}</b> · ${esc(f.date)} · ${esc(f.dep||'TBC')} UTC</p><p>${esc(f.from)} → ${esc(f.to)}</p><p>Booking reference: ${esc(b.ref)}</p>${seatLines}</section>
     <section class="app-next-card"><h3>Latest announcement</h3><p>${esc(f.announcement||'There are no additional announcements.')}</p><button type="button" class="secondary" onclick="showPage('manage');renderMyBookings()">Open private messages</button></section>
     <div class="app-portal-footer"><button class="secondary" onclick="showPage('manage')">Back to My Flights</button>${!['Departed','In flight','Landed','Cancelled'].includes(status)?`<button class="secondary cancel-booking" onclick="cancelBooking('${esc(b.ref)}')">Cancel booking</button>`:''}</div>
@@ -1763,7 +1774,7 @@ function loadPortalEditor(){
  $('portalTerminal').value=f.terminal||'';$('portalDesks').value=f.desks||'';
  $('portalBoarding').value=f.boarding||'';$('portalAnnouncement').value=f.announcement||'';
  $('portalMenu').value=f.menu||'';$('portalMagazine').value=f.magazine||'';
- $('portalMagazineOn').value=String(!!f.magazineOn);
+ $('portalMagazineOn').value=String(!!f.magazineOn);$('portalServerLink').value=f.serverLink||'';
 }
 $('portalFlightSelect').onchange=loadPortalEditor;
 $('savePortalInfo').onclick=()=>{
@@ -1772,7 +1783,7 @@ $('savePortalInfo').onclick=()=>{
  terminal:$('portalTerminal').value,desks:$('portalDesks').value,
  boarding:$('portalBoarding').value,announcement:$('portalAnnouncement').value,
  menu:$('portalMenu').value,magazine:$('portalMagazine').value,
- magazineOn:$('portalMagazineOn').value==='true'
+ magazineOn:$('portalMagazineOn').value==='true',serverLink:$('portalServerLink').value.trim()
  });
  save();alert('Passenger information saved.');
 };
