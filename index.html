@@ -1383,6 +1383,8 @@ async function loadPassengerProfile(user,profile){
  renderMyBookings();
  $('authStatus').textContent='Signed in as '+username+' ('+user.email+'). Online bookings loaded.';
  renderPassengerMessages();
+ // Keep the staff-wide unread counter subscribed after sign-in, even when the Staff panel is not open.
+ if(staff)watchStaffThreads();
 }
 $('loginBtn').onclick=async()=>{
  const email=$('loginEmail').value.trim(),password=$('loginPass').value;
