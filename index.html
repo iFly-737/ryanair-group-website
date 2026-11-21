@@ -905,13 +905,19 @@ nav button.staff-nav-tab{margin-left:18px !important}
 
 /* Careers role cards */
 .careers-list{display:flex;flex-direction:column;gap:12px}
-.career-card{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:20px 18px;background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);min-height:112px}
+.career-card{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:22px;padding:20px 18px;background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);min-height:112px}
 .career-copy{min-width:0;flex:1}
 .career-copy h2{margin:0 0 9px;color:var(--ink);font-size:17px;letter-spacing:0}
 .career-description{margin:0;min-height:18px;color:var(--muted);font-size:13px;line-height:1.5}
 .career-apply{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:20px;min-width:126px;padding:12px 16px;border:0;border-radius:10px;background:var(--surface-solid);color:var(--ink);font-weight:800;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s ease,box-shadow .15s ease}
 .career-apply:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(0,0,0,.14)}
 .career-apply span{font-size:17px;line-height:10px}
+.career-details{flex:0 0 100%;width:100%;padding:16px 2px 2px;border-top:1px solid var(--line);color:var(--ink);font-size:13px;line-height:1.65}
+.career-details[hidden]{display:none}
+.career-details h3{margin:0 0 6px;font-size:14px}
+.career-details ul{margin:0 0 14px;padding-left:20px}
+.career-details li{margin:3px 0}
+.career-details p{margin:0 0 8px}
 @media(max-width:600px){.career-card{padding:16px 13px;gap:12px;min-height:100px}.career-copy h2{font-size:15px}.career-apply{min-width:108px;padding:11px 12px;gap:10px;font-size:11px}}
 
 
@@ -1059,7 +1065,27 @@ nav button.staff-nav-tab{margin-left:18px !important}
 <section id="careersPage" class="hidden">
 <div class="hero"><h1>Careers</h1><p>Explore opportunities with Ryanair Group.</p></div>
 <div class="careers-list" aria-label="Available career roles">
-  <article class="career-card"><div class="career-copy"><h2>Operations Management</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Operations Management')">Apply Now <span aria-hidden="true">→</span></button></article>
+  <article class="career-card"><div class="career-copy"><h2>Operations Management</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" aria-expanded="false" onclick="careerApply('Operations Management')">Apply Now <span aria-hidden="true">→</span></button><div class="career-details" hidden>
+<h3>Benefits:</h3>
+<ul>
+<li>Extended leave available for holiday, educational, and compassionate reasons</li>
+<li>Work with a hardworking and talented staff team</li>
+<li>Experience a highly realistic working environment</li>
+<li>Opportunity to connect with other aviation enthusiasts</li>
+<li>Build experience for applying to other airlines.</li>
+</ul>
+<h3>Requirements:</h3>
+<p>Applicants must be at least 13 years old and have unrestricted access to ROBLOX and Discord</p>
+<ul>
+<li>Your account must be at least 50 days old at the time of applying</li>
+<li>You must be fluent in English and utilise proper spelling, punctuation, and grammar</li>
+<li>A friendly, professional, and adaptable attitude is required</li>
+<li>Strong customer service skills and a 'can do' attitude when interacting with the public</li>
+<li>A passion for aviation, travelling, and meeting new people</li>
+<li>Own a personal computer or laptop</li>
+<li>You must have good activity on the server and beyond</li>
+</ul>
+</div></article>
   <article class="career-card"><div class="career-copy"><h2>Cadet Pilot</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Cadet Pilot')">Apply Now <span aria-hidden="true">→</span></button></article>
   <article class="career-card"><div class="career-copy"><h2>Cabin Crew</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Cabin Crew')">Apply Now <span aria-hidden="true">→</span></button></article>
   <article class="career-card"><div class="career-copy"><h2>Ground Handling</h2><p class="career-description" aria-label="Role description"></p></div><button type="button" class="career-apply" onclick="careerApply('Ground Handling')">Apply Now <span aria-hidden="true">→</span></button></article>
@@ -1248,8 +1274,27 @@ function updateBookingAccountStatus(){
  el.innerHTML=`<b>Your account is being prepared for booking.</b> Please wait a moment and try again.`;
 }
 function recordTransaction(user,amount,reason,ref='',actor='System',uid=auth.currentUser?.uid){transactions.push({uid:uid||'',user,amount,reason,ref,actor,date:new Date().toISOString()});}
-function careerApply(role){if(role==='Operations Management'){window.open('https://forms.cloud.microsoft/r/NfFPKP0aHb','_blank','noopener,noreferrer');return;}alert('Applications for '+role+' are not available yet.');}
+let expandedCareerRole=null;
+function careerApply(role){
+ if(role!=='Operations Management'){alert('Applications for '+role+' are not available yet.');return;}
+ const card=[...document.querySelectorAll('.career-card')].find(c=>c.querySelector('h2')?.textContent.trim()===role);
+ if(!card)return;
+ const details=card.querySelector('.career-details');
+ const button=card.querySelector('.career-apply');
+ if(expandedCareerRole===role){
+  window.open('https://forms.cloud.microsoft/r/NfFPKP0aHb','_blank','noopener,noreferrer');
+  return;
+ }
+ document.querySelectorAll('.career-card').forEach(c=>{
+  const panel=c.querySelector('.career-details');
+  const apply=c.querySelector('.career-apply');
+  if(panel)panel.hidden=true;
+  if(apply)apply.setAttribute('aria-expanded','false');
+ });
+ if(details){details.hidden=false;button.setAttribute('aria-expanded','true');expandedCareerRole=role;}
+}
 function showPage(p){
+ if(p!=='careers'){expandedCareerRole=null;document.querySelectorAll('.career-details').forEach(el=>el.hidden=true);document.querySelectorAll('.career-apply[aria-expanded]').forEach(el=>el.setAttribute('aria-expanded','false'));}
  updateBookingAccountStatus();
  ['book','manage','myFlights','portal','staff','crew','careers'].forEach(x=>$(x+'Page').classList.toggle('hidden',x!==p));
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
